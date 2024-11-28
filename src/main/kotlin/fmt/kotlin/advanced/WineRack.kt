@@ -18,6 +18,7 @@ class WineRack(val capacity: Capacity, val rackId: String = UUID.randomUUID().to
     }
 
     // tp1-step1-001
+    // hint - check/require
     fun storeBottle(bottle: Bottle, position: Position) {
         if (position.shelfIndex >= capacity.nbOfShelves || position.slotIndex >= capacity.maxSlotByShelf) {
             throw IllegalArgumentException("wine rack position $position is out of capacity $capacity")
@@ -29,6 +30,8 @@ class WineRack(val capacity: Capacity, val rackId: String = UUID.randomUUID().to
     }
 
     // tp1-step1-002
+    // hint - scope function
+    // hint - body expression
     fun takeBottle(position: Position): Bottle? {
         val bottle = viewBottle(position)
         bottles[position.shelfIndex][position.slotIndex] = null
@@ -37,11 +40,16 @@ class WineRack(val capacity: Capacity, val rackId: String = UUID.randomUUID().to
 
 
     // tp1-step1-003
+    // hint - body expression
     fun viewBottle(position: Position): Bottle? {
         return bottles[position.shelfIndex][position.slotIndex]
     }
 
     // tp1-step1-004
+    // hint - property getter
+    // hint - collection - aggregation
+    // hint - lambda - unique parameter
+    // hint - lambda - trailing
     fun getNumberOfBottles(): Int {
         var counter = 0
         for (shelf in bottles) {
@@ -55,6 +63,9 @@ class WineRack(val capacity: Capacity, val rackId: String = UUID.randomUUID().to
     }
 
     // tp1-step1-005
+    // hint - sequence
+    // hint - collection - filter
+    // hint - collection - transformation
     fun streamBottles(): Sequence<Bottle> {
         val toReturn = mutableListOf<Bottle?>()
         for (shelf in bottles) {
@@ -75,6 +86,12 @@ class WineRack(val capacity: Capacity, val rackId: String = UUID.randomUUID().to
     }
 
     // tp1-step1-006
+    // hint - range
+    // hint - lambda it
+    // hint - nullability
+    // hint - collection - aggregation
+    // hint - collection - transformation
+    // hint - top level constant
     override fun toString(): String {
         val maxLengthBySlotIndex = mutableMapOf<Int, Int>()
         var slotIndex = 0
@@ -125,6 +142,7 @@ class WineRack(val capacity: Capacity, val rackId: String = UUID.randomUUID().to
     }
 
     // tp1-step1-007
+    // hint - class
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -138,7 +156,8 @@ class WineRack(val capacity: Capacity, val rackId: String = UUID.randomUUID().to
         return true
     }
 
-    // tp1-step1-007-biss
+    // tp1-step1-007-bis
+    // hint - class
     override fun hashCode(): Int {
         var result = capacity.hashCode()
         result = 31 * result + rackId.hashCode()
