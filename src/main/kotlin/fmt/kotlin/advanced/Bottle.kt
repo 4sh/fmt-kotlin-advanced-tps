@@ -4,13 +4,16 @@ package fmt.kotlin.advanced
 // hint - data class
 // hint - default parameter
 // hint - multiline & interpolation
-class Bottle(
+data class Bottle(
     val name: String,
     val year: Int,
     val region: Region,
     val color: Color,
     val rate: Int,
-    val keepUntil: Int?,
+    val keepUntil: Int? = null,
 ) {
-    val label = name + " " + year + " (" + color + ")\nRate : " + rate + " / " + region
+    val label = """
+        $name $year ($color)
+        Rate : $rate / $region
+    """.trimIndent()
 }
