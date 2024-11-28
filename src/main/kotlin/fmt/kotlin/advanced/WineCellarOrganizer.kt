@@ -1,7 +1,6 @@
 package fmt.kotlin.advanced
 
-import fmt.kotlin.advanced.Color.PINK
-import fmt.kotlin.advanced.Color.RED
+import fmt.kotlin.advanced.Color.*
 import fmt.kotlin.advanced.WineCellarOrganizer.Category.*
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -14,29 +13,23 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
     // tp1-step2-005
     // hint - object
     // hint - range
-    enum class Category {
+    private enum class Category {
         COMMON, GOOD, BEST, TO_KEEP;
-    }
 
-    private fun categoryFrom(bottle: Bottle): Category {
-        if (bottle.keepUntil == null && bottle.rate >= 15) {
-            if (bottle.rate >= 18) {
-                return BEST
-            } else {
-                return GOOD
+        companion object {
+            fun from(bottle: Bottle) = when {
+                bottle.keepUntil != null && hasToKeep(bottle) -> TO_KEEP
+                bottle.rate >= 18 -> BEST
+                (15 until 18).contains(bottle.rate) -> GOOD
+                else -> COMMON
             }
-        } else {
-            if (hasToKeep(bottle)) {
-                return TO_KEEP
-            }
+
+            private fun hasToKeep(bottle: Bottle): Boolean =
+                bottle.keepUntil?.let { it > now().year } ?: false
+
+            private fun now() = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
         }
-        return COMMON
     }
-
-    private fun hasToKeep(bottle: Bottle): Boolean =
-        bottle.keepUntil?.let { it > now().year } ?: false
-
-    private fun now() = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
     private val wineCellar = buildWineCellar(winRackAvailable)
 
@@ -45,29 +38,19 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
     // hint - nullability
     // hint - collection - transformation
     // hint - collection - fitler
-    private fun buildWineCellar(winRackCapacitiesAvailable: Array<out Pair<Int, Capacity>>): WineCellar {
-        // TODO body function
-        val wineRacksAvailable = mutableListOf<WineRack>()
-        for (pair in winRackCapacitiesAvailable) {
-            for (i in IntRange(1, pair.first)) {
-                wineRacksAvailable.add(WineRack(pair.second))
+    private fun buildWineCellar(winRackAvailable: Array<out Pair<Int, Capacity>>): WineCellar =
+        winRackAvailable
+            .flatMap { capacityByNb -> generateSequence { WineRack(capacityByNb.second) }.take(capacityByNb.first).toList() }
+            .let { racks ->
+                Region.entries.mapIndexed { index, region ->
+                    region.name to (racks.takeIf { index < it.size }
+                        ?.let { racks[index] }
+                        ?: racks.last()
+                            )
+                }
             }
-        }
-
-        val wineRacks = mutableMapOf<String, WineRack>()
-        var i = 0
-        val regions = Region.entries
-        while (i < regions.size) {
-            if (i < wineRacksAvailable.size) {
-                wineRacks[regions[i].name] = wineRacksAvailable[i]
-            } else {
-                wineRacks[regions[i].name] = wineRacksAvailable[wineRacksAvailable.size - 1]
-            }
-            i++
-        }
-
-        return WineCellar(wineRacks)
-    }
+            .toMap()
+            .let { WineCellar(it) }
 
     // tp1-step2-001
     // hint - lambda - high order
@@ -76,80 +59,61 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
     // hint - nullability
     // hint - throws expression
     fun storeBottle(bottle: Bottle) {
-        val wineRack = selectRack(bottle.region)
-        if (wineRack != null) {
-            val position = selectEmptyPosition(wineRack, bottle.color, categoryFrom(bottle))
-            if (position != null) {
-                wineRack.storeBottle(bottle, position)
-            } else {
-                throw InsufficientSpace()
-            }
+        selectRack(bottle.region)?.let { wineRack ->
+            selectPosition(wineRack, bottle.color, Category.from(bottle)) { it == null }
+                ?.let {
+                    wineRack.storeBottle(bottle, it)
+                } ?: throw InsufficientSpace()
         }
     }
 
     // tp1-step2-003
     // hint - body expression
-    fun takeCommonBottleOf(color: Color, region: Region): Bottle? {
-        return takeBottleOf(color, region, COMMON)
-    }
+    fun takeCommonBottleOf(color: Color, region: Region): Bottle? = takeBottleOf(color, region, COMMON)
 
     // tp1-step2-003
     // hint - body expression
-    fun takeGoodBottleOf(color: Color, region: Region): Bottle? {
-        return takeBottleOf(color, region, GOOD)
-    }
+    fun takeGoodBottleOf(color: Color, region: Region): Bottle? = takeBottleOf(color, region, GOOD)
 
     // tp1-step2-003
     // hint - body expression
-    fun takeBestBottleOf(color: Color, region: Region): Bottle? {
-        return takeBottleOf(color, region, BEST)
-    }
+    fun takeBestBottleOf(color: Color, region: Region): Bottle? = takeBottleOf(color, region, BEST)
 
     // tp1-step2-001
     // hint - lambda - high order
     private fun takeBottleOf(color: Color, region: Region, category: Category): Bottle? =
         selectRack(region)?.let { wineRack ->
-            selectPositionForRegion(wineRack, color, category, region)
+            selectPosition(wineRack, color, category) { it != null && it.region == region }
                 ?.let { wineRack.takeBottle(it) }
         }
 
     // tp1-step2-003
     // hint - body expression
-    fun viewCommonBottleOf(color: Color, region: Region): Bottle? {
-        return viewBottleOf(color, region, COMMON)
-    }
+    fun viewCommonBottleOf(color: Color, region: Region): Bottle? = viewBottleOf(color, region, COMMON)
 
     // tp1-step2-003
     // hint - body expression
-    fun viewGoodBottleOf(color: Color, region: Region): Bottle? {
-        return viewBottleOf(color, region, GOOD)
-    }
+    fun viewGoodBottleOf(color: Color, region: Region): Bottle? = viewBottleOf(color, region, GOOD)
 
     // tp1-step2-003
     // hint - body expression
-    fun viewBestBottleOf(color: Color, region: Region): Bottle? {
-        return viewBottleOf(color, region, BEST)
-    }
+    fun viewBestBottleOf(color: Color, region: Region): Bottle? = viewBottleOf(color, region, BEST)
 
     // tp1-step2-001
     // hint - lambda - high order
     private fun viewBottleOf(color: Color, region: Region, category: Category): Bottle? =
         selectRack(region)?.let { wineRack ->
-            selectPositionForRegion(wineRack, color, category, region)
+            selectPosition(wineRack, color, category) { it != null && it.region == region }
                 ?.let { wineRack.viewBottle(it) }
         }
 
     // tp1-step2-003
     // hint - body expression
-    fun viewWineRackOf(region: Region): WineRack? {
-        return selectRack(region)
-    }
+    fun viewWineRackOf(region: Region): WineRack? = selectRack(region)
 
     // tp1-step2-003
     // hint - body expression
-    fun viewNumberOfWineRacks(): Int {
-        return wineCellar.numberOfRacks
-    }
+    fun viewNumberOfWineRacks(): Int = wineCellar.numberOfRacks
 
     fun numberOfBottlesFrom(region: Region): Int {
         val bottles = mutableListOf<Bottle>()
@@ -199,9 +163,7 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
 
     // tp1-step2-003
     // hint - body expression
-    private fun selectRack(region: Region): WineRack? {
-        return wineCellar.wineRacks[region.name]
-    }
+    private fun selectRack(region: Region): WineRack? = wineCellar.wineRacks[region.name]
 
     // tp1-step2-001
     // hint - lambda - high order
@@ -209,182 +171,77 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
     // tp1-step2-007
     // hint - ternary
     // hint - scope function
-    private fun selectPositionForRegion(
+    private fun selectPosition(
         wineRack: WineRack,
         color: Color,
         category: Category,
-        region: Region
+        condition: (Bottle?) -> Boolean = { true }
     ): Position? {
-        var categoryOnRackSize: Category
-        if (wineRack.capacity.nbOfShelves == 1 && category == BEST) {
-            categoryOnRackSize = GOOD
-        } else {
-            categoryOnRackSize = category
-        }
+        val categoryOnRackSize = category
+            .let { if (wineRack.capacity.nbOfShelves == 1 && it == BEST) GOOD else it }
 
-        val shelfIndex = selectShelf(wineRack, color, categoryOnRackSize)
-        val slotIndex = selectSlotForRegion(wineRack.at(shelfIndex), categoryOnRackSize, region)
-        if (slotIndex != null) {
-            return Position(shelfIndex, slotIndex)
+        return selectShelf(wineRack, color, categoryOnRackSize).let { shelfIndex ->
+            selectSlot(wineRack.at(shelfIndex), categoryOnRackSize, condition)?.let {
+                Position(shelfIndex, it)
+            }
         }
-        return null
-    }
-
-    private fun selectEmptyPosition(
-        wineRack: WineRack,
-        color: Color,
-        category: Category
-    ): Position? {
-        var categoryOnRackSize: Category
-        if (wineRack.capacity.nbOfShelves == 1 && category == BEST) {
-            categoryOnRackSize = GOOD
-        } else {
-            categoryOnRackSize = category
-        }
-
-        val shelfIndex = selectShelf(wineRack, color, categoryOnRackSize)
-        val slotIndex = selectEmptySlot(wineRack.at(shelfIndex), categoryOnRackSize)
-        if (slotIndex != null) {
-            return Position(shelfIndex, slotIndex)
-        }
-        return null
     }
 
     // tp1-step2-003
     // hint - when expression
-    private fun selectShelf(wineRack: WineRack, color: Color, category: Category): Int {
-        if (category == BEST) {
-            return 0
-        } else {
-            if (color == RED) {
-                if (1 < wineRack.capacity.nbOfShelves) {
-                    return 1
-                } else {
-                    return wineRack.capacity.nbOfShelves - 1
+    private fun selectShelf(wineRack: WineRack, color: Color, category: Category): Int =
+        when (category) {
+            BEST -> 0
+            else -> when (color) {
+                RED -> {
+                    if (1 < wineRack.capacity.nbOfShelves) {
+                        1
+                    } else {
+                        wineRack.capacity.nbOfShelves - 1
+                    }
                 }
-            } else if (color == PINK) {
-                if (2 < wineRack.capacity.nbOfShelves) {
-                    return 2
-                } else {
-                    return wineRack.capacity.nbOfShelves - 1
+
+                PINK -> {
+                    if (2 < wineRack.capacity.nbOfShelves) {
+                        2
+                    } else {
+                        wineRack.capacity.nbOfShelves - 1
+                    }
                 }
-            } else {
-                if (3 < wineRack.capacity.nbOfShelves) {
-                    return 3
-                } else {
-                    return wineRack.capacity.nbOfShelves - 1
+
+                WHITE -> {
+                    if (3 < wineRack.capacity.nbOfShelves) {
+                        3
+                    } else {
+                        wineRack.capacity.nbOfShelves - 1
+                    }
                 }
             }
         }
-    }
 
     // tp1-step2-001
     // hint - lambda - high order
     // tp1-step2-002
     // hint - collection
-    private fun selectEmptySlot(shelf: List<Bottle?>, category: Category): Int? {
-        var index: Int? = -1
+    private fun selectSlot(shelf: List<Bottle?>, category: Category, condition: (Bottle?) -> Boolean): Int? =
+        when (category) {
+            TO_KEEP -> shelf
+                .reversed()
+                .take(shelf.size / 2)
+                .indexOfFirst { condition(it) }
+                .takeIf { it > -1 }
+                ?.let { shelf.size - 1 - it }
 
-        if (category == TO_KEEP) {
-            var i = shelf.size - 1
-            while (i >= (shelf.size / 2)) {
-                if (shelf[i] == null) {
-                    index = i
-                    break
-                }
-                i--
-            }
-        }
+            GOOD -> shelf
+                .drop(shelf.size / 2)
+                .indexOfFirst { condition(it) }
+                .takeIf { it > -1 }
+                ?.let { it + shelf.size / 2 }
 
-        if (category == GOOD) {
-            var i = shelf.size / 2
-            while (i < shelf.size) {
-                if (shelf[i] == null) {
-                    index = i
-                    break
-                }
-                i++
-            }
-        }
+            COMMON -> shelf
+                .take(shelf.size / 2)
+                .indexOfFirst { condition(it) }
 
-        if (category == COMMON) {
-            var i = 0
-            while (i < shelf.size / 2) {
-                if (shelf[i] == null) {
-                    index = i
-                    break
-                }
-                i++
-            }
-        }
-
-        if (category == BEST) {
-            var i = 0
-            while (i < shelf.size) {
-                if (shelf[i] == null) {
-                    index = i
-                    break
-                }
-                i++
-            }
-        }
-
-        if (index == -1) {
-            return null
-        }
-        return index
-    }
-
-    private fun selectSlotForRegion(shelf: List<Bottle?>, category: Category, region: Region): Int? {
-        var index: Int? = -1
-
-        if (category == TO_KEEP) {
-            var i = shelf.size - 1
-            while (i >= (shelf.size / 2)) {
-                if (shelf[i] != null && shelf[i]!!.region == region) {
-                    index = i
-                    break
-                }
-                i--
-            }
-        }
-
-        if (category == GOOD) {
-            var i = shelf.size / 2
-            while (i < shelf.size) {
-                if (shelf[i] != null && shelf[i]!!.region == region) {
-                    index = i
-                    break
-                }
-                i++
-            }
-        }
-
-        if (category == COMMON) {
-            var i = 0
-            while (i < shelf.size / 2) {
-                if (shelf[i] != null && shelf[i]!!.region == region) {
-                    index = i
-                    break
-                }
-                i++
-            }
-        }
-
-        if (category == BEST) {
-            var i = 0
-            while (i < shelf.size) {
-                if (shelf[i] != null && shelf[i]!!.region == region) {
-                    index = i
-                    break
-                }
-                i++
-            }
-        }
-
-        if (index == -1) {
-            return null
-        }
-        return index
-    }
+            BEST -> shelf.indexOfFirst { condition(it) }
+        }?.takeIf { it > -1 }
 }
