@@ -1169,8 +1169,8 @@ class WineCellarOrganizerTest {
             // Given
             val bordeauxRedBottle = commonRedBottle()
             // tp1-step3-001
-            val alsaceBottle = copyBottleFor(bordeauxRedBottle, ALSACE)
-            val bourgogneBottle = copyBottleFor(bordeauxRedBottle, BOURGOGNE)
+            val alsaceBottle = bordeauxRedBottle.copy(region = ALSACE)
+            val bourgogneBottle = bordeauxRedBottle.copy(region = BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
             wineOrganizer.storeBottle(alsaceBottle)
             wineOrganizer.storeBottle(bourgogneBottle)
@@ -1203,8 +1203,8 @@ class WineCellarOrganizerTest {
             // Given
             val bordeauxRedBottle = commonRedBottle()
             // tp1-step3-001
-            val alsaceBottle = copyBottleFor(bordeauxRedBottle, ALSACE)
-            val bourgogneBottle = copyBottleFor(bordeauxRedBottle, BOURGOGNE)
+            val alsaceBottle = bordeauxRedBottle.copy(region = ALSACE)
+            val bourgogneBottle = bordeauxRedBottle.copy(region = BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
             wineOrganizer.storeBottle(alsaceBottle)
             wineOrganizer.storeBottle(bourgogneBottle)
@@ -1243,8 +1243,8 @@ class WineCellarOrganizerTest {
             // Given
             val bordeauxRedBottle = commonRedBottle()
             // tp1-step3-001
-            val alsaceBottle = copyBottleFor(bordeauxRedBottle, ALSACE)
-            val bourgogneBottle = copyBottleFor(bordeauxRedBottle, BOURGOGNE)
+            val alsaceBottle = bordeauxRedBottle.copy(region = ALSACE)
+            val bourgogneBottle = bordeauxRedBottle.copy(region = BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
             wineOrganizer.storeBottle(alsaceBottle)
             wineOrganizer.storeBottle(bourgogneBottle)
@@ -1277,8 +1277,8 @@ class WineCellarOrganizerTest {
             // Given
             val bordeauxRedBottle = commonRedBottle()
             // tp1-step3-001
-            val alsaceBottle = copyBottleFor(bordeauxRedBottle, ALSACE)
-            val bourgogneBottle = copyBottleFor(bordeauxRedBottle, BOURGOGNE)
+            val alsaceBottle = bordeauxRedBottle.copy(region = ALSACE)
+            val bourgogneBottle = bordeauxRedBottle.copy(region = BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
             wineOrganizer.storeBottle(alsaceBottle)
             wineOrganizer.storeBottle(bourgogneBottle)
@@ -1306,15 +1306,6 @@ class WineCellarOrganizerTest {
             wineOrganizer.numberOfBottlesFrom(BOURGOGNE) shouldBe 0
         }
     }
-
-    private fun copyBottleFor(bordeauxRedBottle: Bottle, region: Region) = Bottle(
-        name = bordeauxRedBottle.name,
-        year = bordeauxRedBottle.year,
-        region = region,
-        color = bordeauxRedBottle.color,
-        rate = bordeauxRedBottle.rate,
-        keepUntil = bordeauxRedBottle.keepUntil,
-    )
 
     private fun WineRack.getAt(shelfIndex: Int, slotIndex: Int) = at(shelfIndex, slotIndex)
     private fun WineRack.getAt(shelfIndex: Int) = at(shelfIndex)
