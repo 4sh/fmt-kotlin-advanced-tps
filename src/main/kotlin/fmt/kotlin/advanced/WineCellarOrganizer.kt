@@ -83,21 +83,15 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
 
     fun viewNumberOfWineRacks(): Int = wineCellar.numberOfRacks
 
-    // tp1-step4-001
-    // hint - collection - aggregation
     fun numberOfBottlesFrom(region: Region): Int =
         wineCellar.wineRacks.values.distinct().flatMap { it.streamBottles() }.count { it.region == region }
 
-    // tp1-step4-001
-    // hint - collection - aggregation
     fun numberOfBottlesByRegion(): Map<Region, Int> = wineCellar.wineRacks.values
         .distinct()
         .flatMap { it.streamBottles() }
         .groupingBy { it.region }
         .eachCount()
 
-    // tp1-step4-001
-    // hint - collection - aggregation
     fun numberOfBottlesByRegion(yearRange: IntRange): Map<Region, Int> = wineCellar.wineRacks.values
         .distinct()
         .flatMap { it.streamBottles() }
