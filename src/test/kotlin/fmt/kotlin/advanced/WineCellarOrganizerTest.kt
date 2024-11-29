@@ -1,7 +1,6 @@
 package fmt.kotlin.advanced
 
 import fmt.kotlin.advanced.Color.*
-import fmt.kotlin.advanced.*
 import fmt.kotlin.advanced.Region.*
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
@@ -9,7 +8,6 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.maps.shouldContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldHave
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import org.junit.jupiter.api.Nested
@@ -1421,5 +1419,3 @@ class WineCellarOrganizerTest {
     private fun WineRack.getAt(shelfIndex: Int, slotIndex: Int) = at(shelfIndex, slotIndex)
     private fun WineRack.getAt(shelfIndex: Int) = at(shelfIndex)
 }
-
-

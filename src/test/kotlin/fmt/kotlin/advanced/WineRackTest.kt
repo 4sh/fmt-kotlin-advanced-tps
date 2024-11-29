@@ -1,11 +1,7 @@
 package fmt.kotlin.advanced
 
-import fmt.kotlin.advanced.Bottle
-import fmt.kotlin.advanced.Capacity
 import fmt.kotlin.advanced.Color.RED
-import fmt.kotlin.advanced.Position
 import fmt.kotlin.advanced.Region.BORDEAUX
-import fmt.kotlin.advanced.WineRack
 import io.kotest.assertions.throwables.shouldThrowMessage
 import org.junit.jupiter.api.Test
 
