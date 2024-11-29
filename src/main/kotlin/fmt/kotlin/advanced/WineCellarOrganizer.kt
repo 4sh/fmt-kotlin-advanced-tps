@@ -83,55 +83,25 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
 
     // tp1-step4-001
     // hint - collection - aggregation
-    fun numberOfBottlesFrom(region: Region): Int {
-        val bottles = mutableListOf<Bottle>()
-        for (wineRack in wineCellar.wineRacks.values.toSet()) {
-            bottles.addAll(wineRack.streamBottles().toList())
-        }
-        var i = 0
-        for (bottle in bottles) {
-            if (bottle.region == region) {
-                i++
-            }
-        }
-        return i
-    }
+    fun numberOfBottlesFrom(region: Region): Int =
+        wineCellar.wineRacks.values.distinct().flatMap { it.streamBottles() }.count { it.region == region }
 
     // tp1-step4-001
     // hint - collection - aggregation
-    fun numberOfBottlesByRegion(): Map<Region, Int> {
-        val bottles = mutableListOf<Bottle>()
-        for (wineRack in wineCellar.wineRacks.values.toSet()) {
-            bottles.addAll(wineRack.streamBottles().toList())
-        }
-        val map = mutableMapOf<Region, Int>()
-        for (bottle in bottles) {
-            if (map[bottle.region] == null) {
-                map[bottle.region] = 0
-            }
-            map[bottle.region] = map[bottle.region]!! + 1
-        }
-        return map
-    }
+    fun numberOfBottlesByRegion(): Map<Region, Int> = wineCellar.wineRacks.values
+        .distinct()
+        .flatMap { it.streamBottles() }
+        .groupingBy { it.region }
+        .eachCount()
 
     // tp1-step4-001
     // hint - collection - aggregation
-    fun numberOfBottlesByRegion(yearRange: IntRange): Map<Region, Int> {
-        val bottles = mutableListOf<Bottle>()
-        for (wineRack in wineCellar.wineRacks.values.toSet()) {
-            bottles.addAll(wineRack.streamBottles().toList())
-        }
-        val map = mutableMapOf<Region, Int>()
-        for (bottle in bottles) {
-            if (map[bottle.region] == null) {
-                map[bottle.region] = 0
-            }
-            if (yearRange.contains(bottle.year)) {
-                map[bottle.region] = map[bottle.region]!! + 1
-            }
-        }
-        return map
-    }
+    fun numberOfBottlesByRegion(yearRange: IntRange): Map<Region, Int> = wineCellar.wineRacks.values
+        .distinct()
+        .flatMap { it.streamBottles() }
+        .groupingBy { it.region }
+        .fold(0) { acc, bottle -> bottle.takeIf { yearRange.contains(it.year) }?.let { acc + 1 } ?: acc }
+
 
     private fun selectRack(region: Region): WineRack? = wineCellar.wineRacks[region.name]
 
