@@ -5,16 +5,13 @@ import org.junit.jupiter.api.Test
 import java.math.BigInteger
 
 class FibonacciTest {
-    fun fibonacci(nthNumber: BigInteger): BigInteger {
-        fun fibonacci(nthNumber: BigInteger): BigInteger {
-            if (nthNumber <= BigInteger.ONE) {
-                return nthNumber
-            }
 
-            return fibonacci(nthNumber - BigInteger.TWO)  + fibonacci(nthNumber - BigInteger.ONE)
+    tailrec fun fibonacci(nthNumber: BigInteger, previous: BigInteger = BigInteger.ZERO, next: BigInteger = BigInteger.ONE): BigInteger {
+        if (nthNumber == BigInteger.ONE) {
+            return previous
         }
 
-        return fibonacci(nthNumber - BigInteger.ONE)
+        return fibonacci(nthNumber - BigInteger.ONE, next, previous + next)
     }
 
     @Test

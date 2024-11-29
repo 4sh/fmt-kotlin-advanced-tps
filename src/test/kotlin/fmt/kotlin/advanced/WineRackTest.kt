@@ -9,6 +9,7 @@ import fmt.kotlin.advanced.WineRack
 import io.kotest.assertions.throwables.shouldThrowMessage
 import org.junit.jupiter.api.Test
 
+// tp2-step1-004
 class WineRackTest {
 
     @Test

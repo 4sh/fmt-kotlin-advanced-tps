@@ -1418,6 +1418,7 @@ class WineCellarOrganizerTest {
         }
     }
 
+    // tp2-step1-002
     private fun WineRack.getAt(shelfIndex: Int, slotIndex: Int) = at(shelfIndex, slotIndex)
     private fun WineRack.getAt(shelfIndex: Int) = at(shelfIndex)
 }
