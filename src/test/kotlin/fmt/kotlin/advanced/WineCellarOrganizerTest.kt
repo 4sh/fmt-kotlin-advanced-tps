@@ -1168,6 +1168,7 @@ class WineCellarOrganizerTest {
         fun `stored bottle from regions should can be viewed`() {
             // Given
             val bordeauxRedBottle = commonRedBottle()
+            // tp1-step3-001
             val alsaceBottle = copyBottleFor(bordeauxRedBottle, ALSACE)
             val bourgogneBottle = copyBottleFor(bordeauxRedBottle, BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
@@ -1201,6 +1202,7 @@ class WineCellarOrganizerTest {
         fun `stored bottle from regions should can be taken`() {
             // Given
             val bordeauxRedBottle = commonRedBottle()
+            // tp1-step3-001
             val alsaceBottle = copyBottleFor(bordeauxRedBottle, ALSACE)
             val bourgogneBottle = copyBottleFor(bordeauxRedBottle, BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
@@ -1240,6 +1242,7 @@ class WineCellarOrganizerTest {
         fun `stored bottle from regions should can be viewed`() {
             // Given
             val bordeauxRedBottle = commonRedBottle()
+            // tp1-step3-001
             val alsaceBottle = copyBottleFor(bordeauxRedBottle, ALSACE)
             val bourgogneBottle = copyBottleFor(bordeauxRedBottle, BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
@@ -1273,6 +1276,7 @@ class WineCellarOrganizerTest {
         fun `stored bottle from regions should can be taken`() {
             // Given
             val bordeauxRedBottle = commonRedBottle()
+            // tp1-step3-001
             val alsaceBottle = copyBottleFor(bordeauxRedBottle, ALSACE)
             val bourgogneBottle = copyBottleFor(bordeauxRedBottle, BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
