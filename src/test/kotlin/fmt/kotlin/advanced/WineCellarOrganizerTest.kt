@@ -9,7 +9,6 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.maps.shouldContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldHave
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import org.junit.jupiter.api.Nested
@@ -38,7 +37,7 @@ class WineCellarOrganizerTest {
     inner class `with racks having sufficent space` {
 
         //tp2-step1-004
-        val wineOrganizer = WineCellarOrganizer(3 to (Capacity(4, 6)))
+        val wineOrganizer = WineCellarOrganizer(3 to (4 by 6))
 
         @Test
         fun `a stored bottle should can be viewed`() {
@@ -544,7 +543,7 @@ class WineCellarOrganizerTest {
     inner class `with racks having unique shelf` {
 
         //tp2-step1-004
-        val wineOrganizer = WineCellarOrganizer(3 to Capacity(1, 6))
+        val wineOrganizer = WineCellarOrganizer(3 to (1 by 6))
 
         @Nested
         inner class `a common bottle` {
@@ -872,7 +871,7 @@ class WineCellarOrganizerTest {
     inner class `with racks having two shelves` {
 
         //tp2-step1-004
-        val wineOrganizer = WineCellarOrganizer(3 to Capacity(2, 6))
+        val wineOrganizer = WineCellarOrganizer(3 to (2 by 6))
 
         @Nested
         inner class `a common bottle` {
@@ -1078,7 +1077,7 @@ class WineCellarOrganizerTest {
     inner class `with racks having three shelves` {
 
         //tp2-step1-004
-        val wineOrganizer = WineCellarOrganizer(3 to Capacity(3, 6))
+        val wineOrganizer = WineCellarOrganizer(3 to (3 by 6))
 
         @Nested
         inner class `a common bottle` {
@@ -1170,7 +1169,7 @@ class WineCellarOrganizerTest {
     inner class `with one rack having sufficent space` {
 
         //tp2-step1-004
-        val wineOrganizer = WineCellarOrganizer(1 to Capacity(4, 6))
+        val wineOrganizer = WineCellarOrganizer(1 to (4 by 6))
 
         @Test
         fun `stored bottle from regions should can be viewed`() {
@@ -1243,7 +1242,7 @@ class WineCellarOrganizerTest {
     inner class `with two racks having sufficent space` {
 
         //tp2-step1-004
-        val wineOrganizer = WineCellarOrganizer(2 to Capacity(4, 6))
+        val wineOrganizer = WineCellarOrganizer(2 to (4 by 6))
 
         @Test
         fun `stored bottle from regions should can be viewed`() {
@@ -1426,8 +1425,8 @@ class WineCellarOrganizerTest {
     }
 
     // tp2-step1-002
-    private fun WineRack.getAt(shelfIndex: Int, slotIndex: Int) = at(shelfIndex, slotIndex)
-    private fun WineRack.getAt(shelfIndex: Int) = at(shelfIndex)
+    private fun WineRack.getAt(shelfIndex: Int, slotIndex: Int) = this[shelfIndex][slotIndex]
+    private fun WineRack.getAt(shelfIndex: Int) = this[shelfIndex]
 }
 
 
