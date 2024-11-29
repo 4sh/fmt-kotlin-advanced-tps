@@ -34,7 +34,7 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
     // hint - destructuring
     private fun buildWineCellar(winRackAvailable: Array<out Pair<Int, Capacity>>): WineCellar =
         winRackAvailable
-            .flatMap { capacityByNb -> generateSequence { WineRack(capacityByNb.second) }.take(capacityByNb.first).toList() }
+            .flatMap { (nb, capacity) -> generateSequence { WineRack(capacity) }.take(nb).toList() }
             .let { racks ->
                 Region.entries.mapIndexed { index, region ->
                     region.name to (racks.takeIf { index < it.size }
@@ -117,8 +117,8 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
             .let { if (wineRack.capacity.nbOfShelves == 1 && it == BEST) GOOD else it }
 
         return selectShelf(wineRack, color, categoryOnRackSize).let { shelfIndex ->
-            selectSlot(wineRack.at(shelfIndex), categoryOnRackSize, condition)?.let {
-                Position(shelfIndex, it)
+            selectSlot(wineRack[shelfIndex], categoryOnRackSize, condition)?.let {
+                shelfIndex at it
             }
         }
     }
@@ -130,29 +130,9 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
         when (category) {
             BEST -> 0
             else -> when (color) {
-                RED -> {
-                    if (1 < wineRack.capacity.nbOfShelves) {
-                        1
-                    } else {
-                        wineRack.capacity.nbOfShelves - 1
-                    }
-                }
-
-                PINK -> {
-                    if (2 < wineRack.capacity.nbOfShelves) {
-                        2
-                    } else {
-                        wineRack.capacity.nbOfShelves - 1
-                    }
-                }
-
-                WHITE -> {
-                    if (3 < wineRack.capacity.nbOfShelves) {
-                        3
-                    } else {
-                        wineRack.capacity.nbOfShelves - 1
-                    }
-                }
+                RED -> 1 orLastShelf wineRack
+                PINK -> 2 orLastShelf wineRack
+                WHITE -> 3 orLastShelf wineRack
             }
         }
 
@@ -177,4 +157,10 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
 
             BEST -> shelf.indexOfFirst { condition(it) }
         }?.takeIf { it > -1 }
+
+    // tp2-step1-005
+    // hint - infix
+    // hint - extension function
+    private infix fun Int.orLastShelf(wineRack: WineRack) =
+        this.takeIf { it < wineRack.capacity.nbOfShelves } ?: (wineRack.capacity.nbOfShelves - 1)
 }
