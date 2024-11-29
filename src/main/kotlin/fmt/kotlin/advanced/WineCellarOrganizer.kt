@@ -82,6 +82,7 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
     fun viewNumberOfWineRacks(): Int = wineCellar.numberOfRacks
 
     // tp1-step4-001
+    // hint - collection - aggregation
     fun numberOfBottlesFrom(region: Region): Int {
         val bottles = mutableListOf<Bottle>()
         for (wineRack in wineCellar.wineRacks.values.toSet()) {
@@ -97,6 +98,7 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
     }
 
     // tp1-step4-001
+    // hint - collection - aggregation
     fun numberOfBottlesByRegion(): Map<Region, Int> {
         val bottles = mutableListOf<Bottle>()
         for (wineRack in wineCellar.wineRacks.values.toSet()) {
@@ -113,6 +115,7 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
     }
 
     // tp1-step4-001
+    // hint - collection - aggregation
     fun numberOfBottlesByRegion(yearRange: IntRange): Map<Region, Int> {
         val bottles = mutableListOf<Bottle>()
         for (wineRack in wineCellar.wineRacks.values.toSet()) {
