@@ -30,6 +30,8 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
 
     private val wineCellar = buildWineCellar(winRackAvailable)
 
+    // tp2-step1-005
+    // hint - destructuring
     private fun buildWineCellar(winRackAvailable: Array<out Pair<Int, Capacity>>): WineCellar =
         winRackAvailable
             .flatMap { capacityByNb ->
@@ -101,6 +103,12 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
 
     private fun selectRack(region: Region): WineRack? = wineCellar.wineRacks[region.name]
 
+    // tp2-step1-002
+    // hint - extension function
+    // hint - operation overload
+    // tp2-step1-004
+    // hint - extension function
+    // hint - infix
     private fun selectPosition(
         wineRack: WineRack,
         color: Color,
@@ -121,29 +129,9 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
         when (category) {
             BEST -> 0
             else -> when (color) {
-                RED -> {
-                    if (1 < wineRack.capacity.nbOfShelves) {
-                        1
-                    } else {
-                        wineRack.capacity.nbOfShelves - 1
-                    }
-                }
-
-                PINK -> {
-                    if (2 < wineRack.capacity.nbOfShelves) {
-                        2
-                    } else {
-                        wineRack.capacity.nbOfShelves - 1
-                    }
-                }
-
-                WHITE -> {
-                    if (3 < wineRack.capacity.nbOfShelves) {
-                        3
-                    } else {
-                        wineRack.capacity.nbOfShelves - 1
-                    }
-                }
+                RED -> 1 orLastShelf wineRack
+                PINK -> 2 orLastShelf wineRack
+                WHITE -> 3 orLastShelf wineRack
             }
         }
 
@@ -169,4 +157,7 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
                 ?.let { shelf.size - 1 - it }
 
         }?.takeIf { it > -1 }
+
+    private infix fun Int.orLastShelf(wineRack: WineRack) =
+        this.takeIf { it < wineRack.capacity.nbOfShelves } ?: (wineRack.capacity.nbOfShelves - 1)
 }

@@ -9,8 +9,12 @@ import fmt.kotlin.advanced.WineRack
 import io.kotest.assertions.throwables.shouldThrowMessage
 import org.junit.jupiter.api.Test
 
+// tp2-step1-004
 class WineRackTest {
 
+    // tp2-step1-002
+    // hint - extension function
+    // hint - infix
     @Test
     fun `should throw error when out of capacity (shelf)`() {
         // Given
@@ -22,6 +26,9 @@ class WineRackTest {
         }
     }
 
+    // tp2-step1-002
+    // hint - extension function
+    // hint - infix
     @Test
     fun `should throw error when out of capacity (slot)`() {
         // Given
@@ -33,6 +40,9 @@ class WineRackTest {
         }
     }
 
+    // tp2-step1-002
+    // hint - extension function
+    // hint - infix
     @Test
     fun `should throw error when there is already a bottle`() {
         // Given
