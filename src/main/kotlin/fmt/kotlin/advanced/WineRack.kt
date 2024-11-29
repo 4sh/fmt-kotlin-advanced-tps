@@ -8,57 +8,32 @@ data class Capacity(val nbOfShelves: Int, val maxSlotByShelf: Int)
 
 data class Position(val shelfIndex: Int, val slotIndex: Int)
 
-// tp2-step1-001
-// hint - extension function
-// hint - operator overload
 operator fun Capacity.contains(position: Position) =
     position.shelfIndex < nbOfShelves && position.slotIndex < maxSlotByShelf
 
-// tp2-step1-004
-// hint - extension function
-// hint - operator overload
 infix fun Int.by(maxSlotByShelf: Int) = Capacity(this, maxSlotByShelf)
 
-// tp2-step1-004
-// hint - extension function
-// hint - operator overload
 infix fun Int.at(slotIndex: Int) = Position(this, slotIndex)
 
-// tp2-step1-003
-// hint - typealias
 typealias Mutable2DList<T> = MutableList<MutableList<T>>
 
 
 data class WineRack(val capacity: Capacity, val rackId: String = UUID.randomUUID().toString()) {
 
-    // tp2-step1-003
-    // hint - typealias
     private val bottles: Mutable2DList<Bottle?> = mutableListOf<MutableList<Bottle?>>().apply {
         repeat(capacity.nbOfShelves) {
             add(arrayOfNulls<Bottle>(capacity.maxSlotByShelf).toMutableList())
         }
     }
 
-    // tp2-step1-002
-    // hint - extension function
-    // hint - operator overload
     operator fun get(position: Position) = bottles[position]
 
-    // tp2-step1-002
-    // hint - extension function
-    // hint - operator overload
     operator fun get(shelfIndex: Int): List<Bottle?> = bottles[shelfIndex].toList()
 
-    // tp2-step1-002
-    // hint - extension function
-    // hint - operator overload
     operator fun set(position: Position, bottle: Bottle) {
         storeBottle(bottle, position)
     }
 
-    // tp2-step1-001
-    // hint - extension function
-    // hint - operator overload
     fun storeBottle(bottle: Bottle, position: Position) {
         check(position in capacity) { "wine rack position $position is out of capacity $capacity" }
         check(bottles[position] == null) { "the slot at $position is not free" }
@@ -66,17 +41,11 @@ data class WineRack(val capacity: Capacity, val rackId: String = UUID.randomUUID
         bottles[position] = bottle
     }
 
-    // tp2-step1-003
-    // hint - extension function
-    // hint - operator overload
     fun takeBottle(position: Position): Bottle? =
         viewBottle(position).also {
             bottles[position] = null
         }
 
-    // tp2-step1-003
-    // hint - extension function
-    // hint - operator overload
     fun viewBottle(position: Position): Bottle? =
         bottles[position]
 
@@ -88,9 +57,6 @@ data class WineRack(val capacity: Capacity, val rackId: String = UUID.randomUUID
     fun streamBottles(): Sequence<Bottle> =
         bottles.asSequence().flatten().filterNotNull()
 
-    // tp2-step1-004
-    // hint - extension function
-    // hint - infix
     override fun toString(): String {
         val maxLengthBySlotIndex: Map<Int, Int> = (0 until capacity.maxSlotByShelf)
             .associateWith { slotIndex ->
@@ -107,16 +73,9 @@ data class WineRack(val capacity: Capacity, val rackId: String = UUID.randomUUID
         } + "\n"
     }
 
-
-    // tp2-step1-003
-    // hint - extension function
-    // hint - operator overload
     private operator fun Mutable2DList<Bottle?>.get(position: Position) =
         this[position.shelfIndex][position.slotIndex]
 
-    // tp2-step1-003
-    // hint - extension function
-    // hint - operator overload
     private operator fun Mutable2DList<Bottle?>.set(position: Position, bottle: Bottle?) {
         this[position.shelfIndex][position.slotIndex] = bottle
 

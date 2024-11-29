@@ -10,7 +10,7 @@ class InsufficientSpace : Exception()
 
 class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
 
-    private enum class Category {
+    enum class Category {
         COMMON, GOOD, BEST, TO_KEEP;
 
         companion object {
@@ -31,7 +31,6 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
     private val wineCellar = buildWineCellar(winRackAvailable)
 
     private fun buildWineCellar(winRackAvailable: Array<out Pair<Int, Capacity>>): WineCellar =
-        // tp2-step1-005
         winRackAvailable
             .flatMap { (nb, capacity) ->
                 generateSequence { WineRack(capacity) }.take(nb).toList()
