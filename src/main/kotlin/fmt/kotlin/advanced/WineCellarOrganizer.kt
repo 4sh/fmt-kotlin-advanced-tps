@@ -10,7 +10,7 @@ class InsufficientSpace : Exception()
 
 class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
 
-    private enum class Category {
+    enum class Category {
         COMMON, GOOD, BEST, TO_KEEP;
 
         companion object {
@@ -30,8 +30,6 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
 
     private val wineCellar = buildWineCellar(winRackAvailable)
 
-    // tp2-step1-005
-    // hint - destructuring
     private fun buildWineCellar(winRackAvailable: Array<out Pair<Int, Capacity>>): WineCellar =
         winRackAvailable
             .flatMap { (nb, capacity) -> generateSequence { WineRack(capacity) }.take(nb).toList() }
@@ -101,12 +99,6 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
 
     private fun selectRack(region: Region): WineRack? = wineCellar.wineRacks[region.name]
 
-    // tp2-step1-002
-    // hint - extension function
-    // hint - operation overload
-    // tp2-step1-004
-    // hint - extension function
-    // hint - infix
     private fun selectPosition(
         wineRack: WineRack,
         color: Color,
@@ -123,9 +115,6 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
         }
     }
 
-    // tp2-step1-006
-    // hint - infix
-    // hint - extension function
     private fun selectShelf(wineRack: WineRack, color: Color, category: Category): Int =
         when (category) {
             BEST -> 0
@@ -158,9 +147,6 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
             BEST -> shelf.indexOfFirst { condition(it) }
         }?.takeIf { it > -1 }
 
-    // tp2-step1-005
-    // hint - infix
-    // hint - extension function
     private infix fun Int.orLastShelf(wineRack: WineRack) =
         this.takeIf { it < wineRack.capacity.nbOfShelves } ?: (wineRack.capacity.nbOfShelves - 1)
 }
