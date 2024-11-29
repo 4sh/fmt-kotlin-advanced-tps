@@ -33,8 +33,8 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
     private fun buildWineCellar(winRackAvailable: Array<out Pair<Int, Capacity>>): WineCellar =
         // tp2-step1-005
         winRackAvailable
-            .flatMap { capacityByNb ->
-                generateSequence { WineRack(capacityByNb.second) }.take(capacityByNb.first).toList()
+            .flatMap { (nb, capacity) ->
+                generateSequence { WineRack(capacity) }.take(nb).toList()
             }
             .let { racks ->
                 Region.entries.mapIndexed { index, region ->
@@ -121,8 +121,8 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
             .let { if (wineRack.capacity.nbOfShelves == 1 && it == BEST) GOOD else it }
 
         return selectShelf(wineRack, color, categoryOnRackSize).let { shelfIndex ->
-            selectSlot(wineRack.at(shelfIndex), categoryOnRackSize, condition)?.let {
-                Position(shelfIndex, it)
+            selectSlot(wineRack[shelfIndex], categoryOnRackSize, condition)?.let {
+                shelfIndex at it
             }
         }
     }
