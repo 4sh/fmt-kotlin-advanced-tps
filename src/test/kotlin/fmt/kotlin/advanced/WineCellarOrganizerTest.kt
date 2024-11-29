@@ -3,10 +3,13 @@ package fmt.kotlin.advanced
 import fmt.kotlin.advanced.Color.*
 import fmt.kotlin.advanced.*
 import fmt.kotlin.advanced.Region.*
+import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.maps.shouldContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldHave
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 import org.junit.jupiter.api.Nested
@@ -1168,7 +1171,6 @@ class WineCellarOrganizerTest {
         fun `stored bottle from regions should can be viewed`() {
             // Given
             val bordeauxRedBottle = commonRedBottle()
-            // tp1-step3-001
             val alsaceBottle = bordeauxRedBottle.copy(region = ALSACE)
             val bourgogneBottle = bordeauxRedBottle.copy(region = BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
@@ -1202,7 +1204,6 @@ class WineCellarOrganizerTest {
         fun `stored bottle from regions should can be taken`() {
             // Given
             val bordeauxRedBottle = commonRedBottle()
-            // tp1-step3-001
             val alsaceBottle = bordeauxRedBottle.copy(region = ALSACE)
             val bourgogneBottle = bordeauxRedBottle.copy(region = BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
@@ -1242,7 +1243,6 @@ class WineCellarOrganizerTest {
         fun `stored bottle from regions should can be viewed`() {
             // Given
             val bordeauxRedBottle = commonRedBottle()
-            // tp1-step3-001
             val alsaceBottle = bordeauxRedBottle.copy(region = ALSACE)
             val bourgogneBottle = bordeauxRedBottle.copy(region = BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
@@ -1276,7 +1276,6 @@ class WineCellarOrganizerTest {
         fun `stored bottle from regions should can be taken`() {
             // Given
             val bordeauxRedBottle = commonRedBottle()
-            // tp1-step3-001
             val alsaceBottle = bordeauxRedBottle.copy(region = ALSACE)
             val bourgogneBottle = bordeauxRedBottle.copy(region = BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
@@ -1304,6 +1303,118 @@ class WineCellarOrganizerTest {
             wineOrganizer.numberOfBottlesFrom(BORDEAUX) shouldBe 0
             wineOrganizer.numberOfBottlesFrom(ALSACE) shouldBe 0
             wineOrganizer.numberOfBottlesFrom(BOURGOGNE) shouldBe 0
+        }
+    }
+
+    @Nested
+    inner class `with some bottles` {
+
+        val wineOrganizer = WineCellarOrganizer(2 to Capacity(4, 30))
+
+        @Test
+        fun `should compute nb bottles from region`() {
+            // Given
+            wineOrganizer.storeBottle(commonRedBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(redBottleToKeep())
+            wineOrganizer.storeBottle(redBottleToKeep().copy(region = ALSACE))
+            wineOrganizer.storeBottle(redBottleToKeep().copy(region = BOURGOGNE))
+            wineOrganizer.storeBottle(redBottleToKeep())
+            wineOrganizer.storeBottle(goodWhiteBottle())
+            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(goodWhiteBottle())
+            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(goodWhiteBottle())
+            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(bestWhiteBottle())
+            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = BOURGOGNE))
+            wineOrganizer.storeBottle(bestWhiteBottle())
+            wineOrganizer.storeBottle(commonRedBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(bestWhiteBottle())
+            wineOrganizer.storeBottle(goodWhiteBottle())
+            wineOrganizer.storeBottle(goodWhiteBottle())
+            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = BOURGOGNE))
+
+
+            // When
+            val result = wineOrganizer.numberOfBottlesFrom(BORDEAUX)
+
+            // Then
+            assertSoftly {
+                result shouldBe  10
+            }
+        }
+
+        @Test
+        fun `should compute nb bottles by region`() {
+            // Given
+            wineOrganizer.storeBottle(commonRedBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(redBottleToKeep())
+            wineOrganizer.storeBottle(redBottleToKeep().copy(region = ALSACE))
+            wineOrganizer.storeBottle(redBottleToKeep().copy(region = BOURGOGNE))
+            wineOrganizer.storeBottle(redBottleToKeep())
+            wineOrganizer.storeBottle(goodWhiteBottle())
+            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(goodWhiteBottle())
+            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(goodWhiteBottle())
+            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(bestWhiteBottle())
+            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = BOURGOGNE))
+            wineOrganizer.storeBottle(bestWhiteBottle())
+            wineOrganizer.storeBottle(commonRedBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(bestWhiteBottle())
+            wineOrganizer.storeBottle(goodWhiteBottle())
+            wineOrganizer.storeBottle(goodWhiteBottle())
+            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = BOURGOGNE))
+
+
+            // When
+            val result = wineOrganizer.numberOfBottlesByRegion()
+
+            // Then
+            assertSoftly {
+                result shouldContain (BORDEAUX to 10)
+                result shouldContain (ALSACE to 7)
+                result shouldContain (BOURGOGNE to 3)
+            }
+        }
+
+        @Test
+        fun `should compute nb bottles by region between`() {
+            // Given
+            wineOrganizer.storeBottle(commonRedBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(redBottleToKeep())
+            wineOrganizer.storeBottle(redBottleToKeep().copy(region = ALSACE))
+            wineOrganizer.storeBottle(redBottleToKeep().copy(region = BOURGOGNE))
+            wineOrganizer.storeBottle(redBottleToKeep())
+            wineOrganizer.storeBottle(goodWhiteBottle())
+            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(goodWhiteBottle())
+            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(goodWhiteBottle())
+            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(bestWhiteBottle())
+            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = BOURGOGNE))
+            wineOrganizer.storeBottle(bestWhiteBottle())
+            wineOrganizer.storeBottle(commonRedBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(bestWhiteBottle())
+            wineOrganizer.storeBottle(goodWhiteBottle())
+            wineOrganizer.storeBottle(goodWhiteBottle())
+            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = BOURGOGNE))
+
+
+            // When
+            val result = wineOrganizer.numberOfBottlesByRegion(2012..2018)
+
+            // Then
+            assertSoftly {
+                result shouldContain (BORDEAUX to 2)
+                result shouldContain (ALSACE to 3)
+                result shouldContain (BOURGOGNE to 1)
+            }
         }
     }
 
