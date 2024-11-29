@@ -126,15 +126,13 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
         }
     }
 
-    private fun selectShelf(wineRack: WineRack, color: Color, category: Category): Int = when(color) {
-        else if category == BEST -> 0
-        RED if 1 < wineRack.capacity.nbOfShelves -> 1
-        RED -> wineRack.capacity.nbOfShelves - 1
-        PINK if 2 < wineRack.capacity.nbOfShelves -> 2
-        PINK -> wineRack.capacity.nbOfShelves - 1
-        WHITE if 3 < wineRack.capacity.nbOfShelves -> 3
-        WHITE -> wineRack.capacity.nbOfShelves - 1
-    }
+    private fun selectShelf(wineRack: WineRack, color: Color, category: Category): Int =
+        when (color) {
+            else if category == BEST -> 0
+            RED -> 1 orLastShelf wineRack
+            PINK -> 2 orLastShelf wineRack
+            WHITE -> 3 orLastShelf wineRack
+        }
 
     private fun selectSlot(shelf: List<Bottle?>, category: Category, condition: (Bottle?) -> Boolean): Int? =
         when (category) {
@@ -158,4 +156,7 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
                 ?.let { shelf.size - 1 - it }
 
         }?.takeIf { it > -1 }
+
+    private infix fun Int.orLastShelf(wineRack: WineRack) =
+        this.takeIf { it < wineRack.capacity.nbOfShelves } ?: (wineRack.capacity.nbOfShelves - 1)
 }
