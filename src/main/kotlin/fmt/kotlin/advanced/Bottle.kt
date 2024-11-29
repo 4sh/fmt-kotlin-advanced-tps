@@ -1,9 +1,5 @@
 package fmt.kotlin.advanced
 
-// tp1-step3-001
-// hint - data class
-// hint - default parameter
-// hint - multiline & interpolation
 data class Bottle(
     val name: String,
     val year: Int,
