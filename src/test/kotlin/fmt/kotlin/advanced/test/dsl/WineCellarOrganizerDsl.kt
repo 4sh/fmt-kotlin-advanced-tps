@@ -4,6 +4,11 @@ import fmt.kotlin.advanced.*
 import fmt.kotlin.advanced.Region.*
 import kotlin.random.Random
 
+@DslMarker
+@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
+annotation class WineCellarOrganizerDsl
+
+@WineCellarOrganizerDsl
 class StoreContext {
 
     private val bottlesToStore = mutableListOf<Bottle>()
@@ -19,6 +24,7 @@ class StoreContext {
     fun build(): List<Bottle> = bottlesToStore.toList()
 }
 
+@WineCellarOrganizerDsl
 class BottleContext(
     var name: String? = null,
     var year: Int? = null,
@@ -52,6 +58,7 @@ class BottleContext(
     )
 }
 
+@WineCellarOrganizerDsl
 class WineCellarContext {
 
     private val capacities: MutableList<Capacity> = mutableListOf()
