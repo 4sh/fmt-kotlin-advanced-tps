@@ -5,8 +5,10 @@ import fmt.kotlin.advanced.Region.*
 import kotlin.random.Random
 import kotlin.random.nextInt
 
-// TODO step3
+@DslMarker
+annotation class WineCellarOrganizerDsl
 
+@WineCellarOrganizerDsl
 class BottleContext(
     var name: String = namesExample.random(),
     var year: Int = Random.nextInt(2000..2010),
@@ -37,6 +39,7 @@ class BottleContext(
     }
 }
 
+@WineCellarOrganizerDsl
 class WineCellarDimensionsContext {
     private val capacities = ArrayList<Capacity>()
 
@@ -57,6 +60,7 @@ class WineCellarDimensionsContext {
 fun OrganizeWineCellar(init: WineCellarDimensionsContext.() -> Unit): WineCellarOrganizer =
     WineCellarDimensionsContext().apply(init).build()
 
+@WineCellarOrganizerDsl
 class StoreContext(
     private val cellar: WineCellarOrganizer,
 ) {
