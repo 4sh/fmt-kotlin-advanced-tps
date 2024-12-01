@@ -1,16 +1,22 @@
 package fmt.kotlin.advanced.test.dsl
 
 import fmt.kotlin.advanced.*
-import fmt.kotlin.advanced.Color.RED
 import fmt.kotlin.advanced.Region.*
+import kotlin.random.Random
 
 class StoreContext {
 
-    fun bottle(init: BottleContext.() -> Unit): Bottle {
+    private val bottlesToStore = mutableListOf<Bottle>()
 
+    operator fun Bottle.unaryPlus() {
+        bottlesToStore.add(this)
     }
 
-    fun build(): List<Bottle> =
+    fun bottle(init: BottleContext.() -> Unit): Bottle {
+        return BottleContext().apply { init() }.build()
+    }
+
+    fun build(): List<Bottle> = bottlesToStore.toList()
 }
 
 class BottleContext(
@@ -36,7 +42,14 @@ class BottleContext(
         "Château Meyney"
     )
 
-    fun build(): Bottle = Bottle("Château Beau Rivage", 2012, BORDEAUX, RED, 1, null)
+    fun build(): Bottle = Bottle(
+        name = name ?: namesExample.random(),
+        year = year ?: Random.nextInt(2010, 2020),
+        region = region ?: Region.entries.random(),
+        color = color ?: Color.entries.random(),
+        rate = rate ?: Random.nextInt(0, 21),
+        keepUntil = keepUntil
+    )
 }
 
 class WineCellarContext {
@@ -46,12 +59,14 @@ class WineCellarContext {
     private lateinit var wineCellarOrganizer: WineCellarOrganizer
 
     fun wineCellar(capacity: Capacity) {
-
+        capacities.add(capacity)
     }
 
-    fun store() {
+    fun store(init: StoreContext.() -> Unit) {
         initWineCellarIfNecessary()
-
+        StoreContext().apply(init).build().forEach {
+            wineCellarOrganizer.storeBottle(it)
+        }
     }
 
     private fun initWineCellarIfNecessary() {
@@ -64,8 +79,8 @@ class WineCellarContext {
     }
 
     fun displayNextBest(colorToRegion: Pair<Color, Region>)  {
-        initWineCellarIfNecessary()
-
+        val (color, region) = colorToRegion
+        println("Next best bottle : " + wineCellarOrganizer.viewBestBottleOf(color, region))
     }
 
     fun displayWinRacks() {
@@ -87,5 +102,9 @@ class WineCellarContext {
 }
 
 object OrganizeWineCellar {
-
+    operator fun invoke(init: WineCellarContext.() -> Unit): WineCellarOrganizer {
+        return WineCellarContext().apply(init).build()
+    }
 }
+
+infix fun Color.from(region: Region) = this to region
