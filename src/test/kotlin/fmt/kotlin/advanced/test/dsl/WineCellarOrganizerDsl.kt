@@ -1,21 +1,21 @@
 package fmt.kotlin.advanced.test.dsl
 
-import fmt.kotlin.advanced.Capacity
-import fmt.kotlin.advanced.Color
-import fmt.kotlin.advanced.Region
+import fmt.kotlin.advanced.*
 import fmt.kotlin.advanced.Region.*
-import fmt.kotlin.advanced.WineCellarOrganizer
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 class BottleContext(
-    var name: String? = null,
-    var year: Int? = null,
-    var region: Region? = null,
-    var color: Color? = null,
-    var rate: Int? = null,
+    var name: String = namesExample.random(),
+    var year: Int = Random.nextInt(2000..2010),
+    var region: Region = Region.entries.random(),
+    var color: Color = Color.entries.random(),
+    var rate: Int = Random.nextInt(0..3),
     var keepUntil: Int? = null,
 ) {
 
-    // TODO step 2 003
+    fun build(): Bottle =
+        Bottle(name, year, region, color, rate, keepUntil)
 
     companion object {
         private val namesExample = listOf(
@@ -38,7 +38,9 @@ class BottleContext(
 class WineCellarDimensionsContext {
     private val capacities = ArrayList<Capacity>()
 
-    // TODO step 2 001
+    fun wineRack(capacity: Capacity) {
+        capacities += capacity
+    }
 
     fun build(): WineCellarOrganizer =
         WineCellarOrganizer(
@@ -50,11 +52,24 @@ class WineCellarDimensionsContext {
         )
 }
 
-fun OrganizeWineCellar(): WineCellarOrganizer =
-    TODO("step 2 001")
+fun OrganizeWineCellar(init: WineCellarDimensionsContext.() -> Unit): WineCellarOrganizer =
+    WineCellarDimensionsContext().apply(init).build()
 
-fun WineCellarOrganizer.storing(): WineCellarOrganizer =
-    TODO("step 2 002")
+class StoreContext(
+    private val cellar: WineCellarOrganizer,
+) {
+
+    fun bottle(
+        init: BottleContext.() -> Unit,
+    ) {
+        cellar.storeBottle(BottleContext().apply(init).build())
+    }
+
+    fun build() = cellar
+}
+
+fun WineCellarOrganizer.storing(init: StoreContext.() -> Unit): WineCellarOrganizer =
+    StoreContext(this).apply(init).build()
 
 infix fun Color.from(region: Region) = this to region
 
