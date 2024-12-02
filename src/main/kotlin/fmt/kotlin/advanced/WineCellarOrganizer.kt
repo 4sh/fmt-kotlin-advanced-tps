@@ -11,6 +11,9 @@ class InsufficientSpace : Exception()
 
 class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
 
+    // tp1-step2-005
+    // hint - object
+    // hint - range
     enum class Category {
         COMMON, GOOD, BEST, TO_KEEP;
     }
@@ -37,29 +40,28 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
 
     private val wineCellar = buildWineCellar(winRackAvailable)
 
-    private fun buildWineCellar(winRackCapacitiesAvailable: Array<out Pair<Int, Capacity>>): WineCellar {
-        val wineRacksAvailable = mutableListOf<WineRack>()
-        for (pair in winRackCapacitiesAvailable) {
-            for (i in IntRange(1, pair.first)) {
-                wineRacksAvailable.add(WineRack(pair.second))
+    private fun buildWineCellar(winRackAvailable: Array<out Pair<Int, Capacity>>): WineCellar =
+        winRackAvailable
+            .flatMap { capacityByNb ->
+                generateSequence { WineRack(capacityByNb.second) }.take(capacityByNb.first).toList()
             }
-        }
-
-        val wineRacks = mutableMapOf<String, WineRack>()
-        var i = 0
-        val regions = Region.entries
-        while (i < regions.size) {
-            if (i < wineRacksAvailable.size) {
-                wineRacks[regions[i].name] = wineRacksAvailable[i]
-            } else {
-                wineRacks[regions[i].name] = wineRacksAvailable[wineRacksAvailable.size - 1]
+            .let { racks ->
+                Region.entries.mapIndexed { index, region ->
+                    region.name to (racks.takeIf { index < it.size }
+                        ?.let { racks[index] }
+                        ?: racks.last()
+                            )
+                }
             }
-            i++
-        }
+            .toMap()
+            .let { WineCellar(it) }
 
-        return WineCellar(wineRacks)
-    }
-
+    // tp1-step2-001
+    // hint - lambda - high order
+    // tp1-step2-006
+    // hint - scope function
+    // hint - nullability
+    // hint - throws expression
     fun storeBottle(bottle: Bottle) {
         val wineRack = selectRack(bottle.region)
         if (wineRack != null) {
@@ -72,46 +74,66 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
         }
     }
 
+    // tp1-step2-003
+    // hint - body expression
     fun takeCommonBottleOf(color: Color, region: Region): Bottle? {
         return takeBottleOf(color, region, COMMON)
     }
 
+    // tp1-step2-003
+    // hint - body expression
     fun takeGoodBottleOf(color: Color, region: Region): Bottle? {
         return takeBottleOf(color, region, GOOD)
     }
 
+    // tp1-step2-003
+    // hint - body expression
     fun takeBestBottleOf(color: Color, region: Region): Bottle? {
         return takeBottleOf(color, region, BEST)
     }
 
+    // tp1-step2-001
+    // hint - lambda - high order
     private fun takeBottleOf(color: Color, region: Region, category: Category): Bottle? =
         selectRack(region)?.let { wineRack ->
             selectPositionForRegion(wineRack, color, category, region)
                 ?.let { wineRack.takeBottle(it) }
         }
 
+    // tp1-step2-003
+    // hint - body expression
     fun viewCommonBottleOf(color: Color, region: Region): Bottle? {
         return viewBottleOf(color, region, COMMON)
     }
 
+    // tp1-step2-003
+    // hint - body expression
     fun viewGoodBottleOf(color: Color, region: Region): Bottle? {
         return viewBottleOf(color, region, GOOD)
     }
 
+    // tp1-step2-003
+    // hint - body expression
     fun viewBestBottleOf(color: Color, region: Region): Bottle? {
         return viewBottleOf(color, region, BEST)
     }
 
+    // tp1-step2-001
+    // hint - lambda - high order
     private fun viewBottleOf(color: Color, region: Region, category: Category): Bottle? =
         selectRack(region)?.let { wineRack ->
             selectPositionForRegion(wineRack, color, category, region)
                 ?.let { wineRack.viewBottle(it) }
         }
 
+    // tp1-step2-003
+    // hint - body expression
     fun viewWineRackOf(region: Region): WineRack? {
         return selectRack(region)
     }
 
+    // tp1-step2-003
+    // hint - body expression
     fun viewNumberOfWineRacks(): Int {
         return wineCellar.numberOfRacks
     }
@@ -162,30 +184,29 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
         return map
     }
 
-
+    // tp1-step2-003
+    // hint - body expression
     private fun selectRack(region: Region): WineRack? {
         return wineCellar.wineRacks[region.name]
     }
 
+    // tp1-step2-001
+    // hint - lambda - high order
+    // hint - default argument
     private fun selectPositionForRegion(
         wineRack: WineRack,
         color: Color,
         category: Category,
         region: Region
     ): Position? {
-        var categoryOnRackSize: Category
-        if (wineRack.capacity.nbOfShelves == 1 && category == BEST) {
-            categoryOnRackSize = GOOD
-        } else {
-            categoryOnRackSize = category
-        }
+        val categoryOnRackSize = category
+            .let { if (wineRack.capacity.nbOfShelves == 1 && it == BEST) GOOD else it }
 
-        val shelfIndex = selectShelf(wineRack, color, categoryOnRackSize)
-        val slotIndex = selectSlotForRegion(wineRack.at(shelfIndex), categoryOnRackSize, region)
-        if (slotIndex != null) {
-            return Position(shelfIndex, slotIndex)
+        return selectShelf(wineRack, color, categoryOnRackSize).let { shelfIndex ->
+            selectSlotForRegion(wineRack.at(shelfIndex), categoryOnRackSize, region)?.let {
+                Position(shelfIndex, it)
+            }
         }
-        return null
     }
 
     private fun selectEmptyPosition(
@@ -193,21 +214,18 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
         color: Color,
         category: Category
     ): Position? {
-        var categoryOnRackSize: Category
-        if (wineRack.capacity.nbOfShelves == 1 && category == BEST) {
-            categoryOnRackSize = GOOD
-        } else {
-            categoryOnRackSize = category
-        }
+        val categoryOnRackSize = category
+            .let { if (wineRack.capacity.nbOfShelves == 1 && it == BEST) GOOD else it }
 
-        val shelfIndex = selectShelf(wineRack, color, categoryOnRackSize)
-        val slotIndex = selectEmptySlot(wineRack.at(shelfIndex), categoryOnRackSize)
-        if (slotIndex != null) {
-            return Position(shelfIndex, slotIndex)
+        return selectShelf(wineRack, color, categoryOnRackSize).let { shelfIndex ->
+            selectEmptySlot(wineRack.at(shelfIndex), categoryOnRackSize)?.let {
+                Position(shelfIndex, it)
+            }
         }
-        return null
     }
 
+    // tp1-step2-003
+    // hint - when expression
     private fun selectShelf(wineRack: WineRack, color: Color, category: Category): Int {
         if (category == BEST) {
             return 0
@@ -234,6 +252,10 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
         }
     }
 
+    // tp1-step2-001
+    // hint - lambda - high order
+    // tp1-step2-002
+    // hint - collection
     private fun selectEmptySlot(shelf: List<Bottle?>, category: Category): Int? {
         var index: Int? = -1
 
@@ -246,6 +268,11 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
                 }
                 i++
             }
+
+            // tp1-step2-002
+            // In progress to refactor... insert from beginning of the shelf, but not after the middle
+            //
+            // shelf.???? { condition(it) } // find the first index matching condition
         }
 
         if (category == COMMON) {
@@ -257,6 +284,13 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
                 }
                 i++
             }
+
+            // tp1-step2-002
+            // In progress to refactor... insert from beginning of the shelf, but not after the middle
+            //
+            // shelf
+            // .???(shelf.size / 2) // keep only the first half ?
+            // .??? { condition(it) } // find the first index
         }
 
         if (category == GOOD) {
@@ -268,6 +302,15 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
                 }
                 i++
             }
+
+            // tp1-step2-002
+            // In progress to refactor... insert bottle from the middle of the shelf
+            //
+            // shelf
+            // .???(shelf.size / 2) // skip to the middle
+            // .??? { condition(it) } // find the first index ? return what if not found ?
+            // .??? { it > -1 } // not null if found, null if found
+            // ?.let { it + shelf.size / 2 } // retrieve index from 0 instead of index from reversed
         }
 
         if (category == TO_KEEP) {
@@ -279,6 +322,16 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
                 }
                 i--
             }
+
+            // tp1-step2-002
+            // In progress to refactor... insert bottle by the end, but not before the middle
+            //
+            // shelf
+            // .???(). // by the end ? how inverse collection ?
+            // .???(shelf.size / 2) // skip to the middle
+            // .??? { condition(it) } // find the first index ? return what if not found ?
+            // .??? { it > ??? } // not null if found, null if found
+            // ?.let { shelf.size - 1 - it } // retrieve index from 0 instead of index from reversed
         }
 
         if (index == -1) {
@@ -299,6 +352,12 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
                 }
                 i++
             }
+
+            // tp1-step2-002
+            // In progress to refactor... insert from beginning of the shelf, but not after the middle
+            //
+            // shelf.???? { condition(it) } // find the first index matching condition
+
         }
 
         if (category == COMMON) {
@@ -310,6 +369,13 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
                 }
                 i++
             }
+
+            // tp1-step2-002
+            // In progress to refactor... insert from beginning of the shelf, but not after the middle
+            //
+            // shelf
+            // .???(shelf.size / 2) // keep only the first half ?
+            // .??? { condition(it) } // find the first index
         }
 
         if (category == GOOD) {
@@ -321,6 +387,16 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
                 }
                 i++
             }
+
+            // tp1-step2-002
+            // In progress to refactor... insert bottle from the middle of the shelf
+            //
+            // shelf
+            // .???(shelf.size / 2) // skip to the middle
+            // .??? { condition(it) } // find the first index ? return what if not found ?
+            // .??? { it > -1 } // not null if found, null if found
+            // ?.let { it + shelf.size / 2 } // retrieve index from 0 instead of index from reversed
+
         }
 
         if (category == TO_KEEP) {
@@ -332,6 +408,17 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
                 }
                 i--
             }
+
+            // tp1-step2-002
+            // In progress to refactor... insert bottle by the end, but not before the middle
+            //
+            // shelf
+            // .???(). // by the end ? how inverse collection ?
+            // .???(shelf.size / 2) // skip to the middle
+            // .??? { condition(it) } // find the first index ? return what if not found ?
+            // .??? { it > ??? } // not null if found, null if found
+            // ?.let { shelf.size - 1 - it } // retrieve index from 0 instead of index from reversed
+
         }
 
         if (index == -1) {
