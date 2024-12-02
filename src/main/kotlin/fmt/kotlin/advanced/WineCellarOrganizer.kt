@@ -11,6 +11,7 @@ class InsufficientSpace : Exception()
 
 class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
 
+    // tp1-step2-005
     enum class Category {
         COMMON, GOOD, BEST, TO_KEEP;
     }
@@ -37,6 +38,7 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
 
     private val wineCellar = buildWineCellar(winRackAvailable)
 
+    // tp1-step2-004
     private fun buildWineCellar(winRackCapacitiesAvailable: Array<out Pair<Int, Capacity>>): WineCellar {
         val wineRacksAvailable = mutableListOf<WineRack>()
         for (pair in winRackCapacitiesAvailable) {
@@ -60,6 +62,8 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
         return WineCellar(wineRacks)
     }
 
+    // tp1-step2-001
+    // tp1-step2-006
     fun storeBottle(bottle: Bottle) {
         val wineRack = selectRack(bottle.region)
         if (wineRack != null) {
@@ -72,46 +76,56 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
         }
     }
 
+    // tp1-step2-003
     fun takeCommonBottleOf(color: Color, region: Region): Bottle? {
         return takeBottleOf(color, region, COMMON)
     }
 
+    // tp1-step2-003
     fun takeGoodBottleOf(color: Color, region: Region): Bottle? {
         return takeBottleOf(color, region, GOOD)
     }
 
+    // tp1-step2-003
     fun takeBestBottleOf(color: Color, region: Region): Bottle? {
         return takeBottleOf(color, region, BEST)
     }
 
+    // tp1-step2-001
     private fun takeBottleOf(color: Color, region: Region, category: Category): Bottle? =
         selectRack(region)?.let { wineRack ->
             selectPositionForRegion(wineRack, color, category, region)
                 ?.let { wineRack.takeBottle(it) }
         }
 
+    // tp1-step2-003
     fun viewCommonBottleOf(color: Color, region: Region): Bottle? {
         return viewBottleOf(color, region, COMMON)
     }
 
+    // tp1-step2-003
     fun viewGoodBottleOf(color: Color, region: Region): Bottle? {
         return viewBottleOf(color, region, GOOD)
     }
 
+    // tp1-step2-003
     fun viewBestBottleOf(color: Color, region: Region): Bottle? {
         return viewBottleOf(color, region, BEST)
     }
 
+    // tp1-step2-001
     private fun viewBottleOf(color: Color, region: Region, category: Category): Bottle? =
         selectRack(region)?.let { wineRack ->
             selectPositionForRegion(wineRack, color, category, region)
                 ?.let { wineRack.viewBottle(it) }
         }
 
+    // tp1-step2-003
     fun viewWineRackOf(region: Region): WineRack? {
         return selectRack(region)
     }
 
+    // tp1-step2-003
     fun viewNumberOfWineRacks(): Int {
         return wineCellar.numberOfRacks
     }
@@ -162,11 +176,13 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
         return map
     }
 
-
+    // tp1-step2-003
     private fun selectRack(region: Region): WineRack? {
         return wineCellar.wineRacks[region.name]
     }
 
+    // tp1-step2-001
+    // tp1-step2-007
     private fun selectPositionForRegion(
         wineRack: WineRack,
         color: Color,
@@ -208,6 +224,7 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
         return null
     }
 
+    // tp1-step2-003
     private fun selectShelf(wineRack: WineRack, color: Color, category: Category): Int {
         if (category == BEST) {
             return 0
@@ -234,6 +251,8 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
         }
     }
 
+    // tp1-step2-001
+    // tp1-step2-002
     private fun selectEmptySlot(shelf: List<Bottle?>, category: Category): Int? {
         var index: Int? = -1
 
