@@ -2,13 +2,16 @@ package fmt.kotlin.advanced
 
 import java.util.*
 
-// tp7-step2
 
 private const val EMPTY = "empty"
 
 data class Capacity(val nbOfShelves: Int, val maxSlotByShelf: Int)
 
-data class Position(val shelfIndex: Int, val slotIndex: Int)
+data class Position(val shelfIndex: Int, val slotIndex: Int) {
+
+    fun nextSlot() = Position(shelfIndex, slotIndex + 1)
+    fun nextBeginShelf() = Position(shelfIndex + 1, 0)
+}
 
 operator fun Capacity.contains(position: Position) =
     position.shelfIndex < nbOfShelves && position.slotIndex < maxSlotByShelf
