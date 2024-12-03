@@ -2,7 +2,6 @@ package fmt.kotlin.advanced
 
 import java.util.*
 
-// tp7-step2
 
 private const val EMPTY = "empty"
 
@@ -14,6 +13,9 @@ data class Position(val shelfIndex: Int, val slotIndex: Int) : Comparable<Capaci
             0, -1 -> slotIndex.compareTo(other.maxSlotByShelf - 1)
             else -> 1
         }
+
+    fun nextSlot() = Position(shelfIndex, slotIndex + 1)
+    fun nextBeginShelf() = Position(shelfIndex + 1, 0)
 }
 
 infix fun Int.by(maxSlotByShelf: Int) = Capacity(this, maxSlotByShelf)
