@@ -2,7 +2,6 @@ package fmt.kotlin.advanced
 
 import java.util.*
 
-// tp7-step4
 
 private const val EMPTY = "empty"
 
