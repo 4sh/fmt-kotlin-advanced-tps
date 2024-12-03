@@ -25,7 +25,32 @@ infix fun Int.at(slotIndex: Int) = Position(this, slotIndex)
 
 typealias Mutable2DList<T> = MutableList<MutableList<T>>
 
-data class Rack<T>(val capacity: Capacity, val rackId: String = UUID.randomUUID().toString()) {
+interface ReadableRack<out T> {
+    val capacity: Capacity
+
+    operator fun get(position: Position): T?
+
+    operator fun get(shelfIndex: Int): List<T?>
+
+    fun take(position: Position): T?
+
+    fun view(position: Position): T?
+
+    fun stream(): Sequence<T>
+}
+
+interface WriteableRack<in T> {
+    val capacity: Capacity
+
+    operator fun set(position: Position, bottle: T)
+
+    fun store(bottle: T, position: Position)
+
+    val numberOf: Int
+}
+
+data class Rack<T>(override val capacity: Capacity, val rackId: String = UUID.randomUUID().toString()) :
+    ReadableRack<T>, WriteableRack<T> {
 
     private val elements: Mutable2DList<T?> = mutableListOf<MutableList<T?>>().apply {
         repeat(capacity.nbOfShelves) {
@@ -33,32 +58,32 @@ data class Rack<T>(val capacity: Capacity, val rackId: String = UUID.randomUUID(
         }
     }
 
-    operator fun get(position: Position) = elements[position]
+    override operator fun get(position: Position) = elements[position]
 
-    operator fun get(shelfIndex: Int): List<T?> = elements[shelfIndex].toList()
+    override operator fun get(shelfIndex: Int): List<T?> = elements[shelfIndex].toList()
 
-    operator fun set(position: Position, element: T) {
+    override operator fun set(position: Position, element: T) {
         store(element, position)
     }
 
-    fun store(element: T, position: Position) {
+    override fun store(element: T, position: Position) {
         check(position <= capacity) { "wine rack position $position is out of capacity $capacity" }
         check(elements[position] == null) { "the slot at $position is not free" }
 
         elements[position] = element
     }
 
-    fun take(position: Position): T? =
+    override fun take(position: Position): T? =
         view(position).also {
             elements[position] = null
         }
 
-    fun view(position: Position): T? = elements[position]
+    override fun view(position: Position): T? = elements[position]
 
-    val numberOf: Int
+    override val numberOf: Int
         get() = elements.sumOf { it.filterNotNull().size }
 
-    fun stream(): Sequence<T> = elements.asSequence().flatten().filterNotNull()
+    override fun stream(): Sequence<T> = elements.asSequence().flatten().filterNotNull()
 
     override fun toString(): String {
         val maxLengthBySlotIndex: Map<Int, Int> = (0 until capacity.maxSlotByShelf)
