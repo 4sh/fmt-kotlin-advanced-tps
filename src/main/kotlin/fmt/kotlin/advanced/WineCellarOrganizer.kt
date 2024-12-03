@@ -8,7 +8,6 @@ import kotlin.time.Clock
 
 class InsufficientSpace : Exception()
 
-// tp7-step5
 
 class WineCellarOrganizer<T: Bottle>(vararg winRackAvailable: Pair<Int, Capacity>) {
 
