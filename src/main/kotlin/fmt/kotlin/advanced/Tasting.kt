@@ -5,14 +5,14 @@ import fmt.kotlin.advanced.Region.BORDEAUX
 
 // tp7-step6
 
-fun <T : Bottle> producer(rack: WriteableRack<T>, numberToProduce: Int) {
+inline fun <reified T : Bottle> producer(rack: WriteableRack<T>, numberToProduce: Int) {
     val alreadyPresent = rack.numberOf
     sequence {
         while (true) {
-            yield(produceBottle("Château Beau Rivage", 2012, BORDEAUX, RED, 1, null))
-            yield(produceBottle("Château Saint-Pierre", 2016, BORDEAUX, RED, 15, null))
-            yield(produceBottle("Château Latour", 2012, BORDEAUX, RED, 18, null))
-            yield(produceBottle("Château Meyney", 2018, BORDEAUX, RED, 19, keepUntil = 2042))
+            yield(produceBottle<T>("Château Beau Rivage", 2012, BORDEAUX, RED, 1, null))
+            yield(produceBottle<T>("Château Saint-Pierre", 2016, BORDEAUX, RED, 15, null))
+            yield(produceBottle<T>("Château Latour", 2012, BORDEAUX, RED, 18, null))
+            yield(produceBottle<T>("Château Meyney", 2018, BORDEAUX, RED, 19, keepUntil = 2042))
         }
     }.take(numberToProduce).forEachIndexed { index, bottle ->
         rack.store(
@@ -22,9 +22,18 @@ fun <T : Bottle> producer(rack: WriteableRack<T>, numberToProduce: Int) {
     }
 }
 
-fun produceBottle(
-
-)
+inline fun <reified T : Bottle> produceBottle(
+    name: String,
+    year: Int,
+    region: Region,
+    color: Color,
+    rate: Int,
+    keepUntil: Int? = null,
+): T = when (T::class) {
+    Magnum::class -> Magnum(name, year, region, color, rate, keepUntil) as T
+    Standard::class -> Standard(name, year, region, color, rate, keepUntil) as T
+    else -> error("")
+}
 
 
 fun wineContainerConsumer(rack: ReadableRack<WineContainer>): Sequence<String> {
