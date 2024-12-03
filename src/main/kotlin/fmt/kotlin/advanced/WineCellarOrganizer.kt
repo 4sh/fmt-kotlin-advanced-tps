@@ -10,20 +10,20 @@ class InsufficientSpace : Exception()
 
 // tp7-step5
 
-class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
+class WineCellarOrganizer<T: Bottle>(vararg winRackAvailable: Pair<Int, Capacity>) {
 
     enum class Category {
         COMMON, GOOD, BEST, TO_KEEP;
 
         companion object {
-            fun from(bottle: Bottle) = when {
+            fun <T : Bottle> from(bottle: T) = when {
                 bottle.keepUntil != null && hasToKeep(bottle) -> TO_KEEP
                 bottle.rate >= 18 -> BEST
                 (15 until 18).contains(bottle.rate) -> GOOD
                 else -> COMMON
             }
 
-            private fun hasToKeep(bottle: Bottle): Boolean =
+            private fun <T : Bottle>  hasToKeep(bottle: T): Boolean =
                 bottle.keepUntil?.let { it > now().year } ?: false
 
             private fun now() = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
@@ -32,10 +32,10 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
 
     private val wineCellar = buildWineCellar(winRackAvailable)
 
-    private fun buildWineCellar(winRackAvailable: Array<out Pair<Int, Capacity>>): WineCellar =
+    private fun buildWineCellar(winRackAvailable: Array<out Pair<Int, Capacity>>): WineCellar<T> =
         winRackAvailable
             .flatMap { (nb, capacity) ->
-                generateSequence { Rack<Bottle>(capacity) }.take(nb).toList()
+                generateSequence { Rack<T>(capacity) }.take(nb).toList()
             }
             .let { racks ->
                 Region.entries.mapIndexed { index, region ->
@@ -48,7 +48,7 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
             .toMap()
             .let { WineCellar(it) }
 
-    fun storeBottle(bottle: Bottle) {
+    fun storeBottle(bottle: T) {
         selectRack(bottle.region)?.let { wineRack ->
             selectPosition(wineRack, bottle.color, Category.from(bottle)) { it == null }
                 ?.let {
@@ -57,31 +57,31 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
         }
     }
 
-    fun takeCommonBottleOf(color: Color, region: Region): Bottle? = takeBottleOf(color, region, COMMON)
+    fun takeCommonBottleOf(color: Color, region: Region): T? = takeBottleOf(color, region, COMMON)
 
-    fun takeGoodBottleOf(color: Color, region: Region): Bottle? = takeBottleOf(color, region, GOOD)
+    fun takeGoodBottleOf(color: Color, region: Region): T? = takeBottleOf(color, region, GOOD)
 
-    fun takeBestBottleOf(color: Color, region: Region): Bottle? = takeBottleOf(color, region, BEST)
+    fun takeBestBottleOf(color: Color, region: Region): T? = takeBottleOf(color, region, BEST)
 
-    private fun takeBottleOf(color: Color, region: Region, category: Category): Bottle? =
+    private fun takeBottleOf(color: Color, region: Region, category: Category): T? =
         selectRack(region)?.let { wineRack ->
             selectPosition(wineRack, color, category) { it != null && it.region == region }
                 ?.let { wineRack.take(it) }
         }
 
-    fun viewCommonBottleOf(color: Color, region: Region): Bottle? = viewBottleOf(color, region, COMMON)
+    fun viewCommonBottleOf(color: Color, region: Region): T? = viewBottleOf(color, region, COMMON)
 
-    fun viewGoodBottleOf(color: Color, region: Region): Bottle? = viewBottleOf(color, region, GOOD)
+    fun viewGoodBottleOf(color: Color, region: Region): T? = viewBottleOf(color, region, GOOD)
 
-    fun viewBestBottleOf(color: Color, region: Region): Bottle? = viewBottleOf(color, region, BEST)
+    fun viewBestBottleOf(color: Color, region: Region): T? = viewBottleOf(color, region, BEST)
 
-    private fun viewBottleOf(color: Color, region: Region, category: Category): Bottle? =
+    private fun viewBottleOf(color: Color, region: Region, category: Category): T? =
         selectRack(region)?.let { wineRack ->
             selectPosition(wineRack, color, category) { it != null && it.region == region }
                 ?.let { wineRack.view(it) }
         }
 
-    fun viewWineRackOf(region: Region): Rack<Bottle>? = selectRack(region)
+    fun viewWineRackOf(region: Region): Rack<T>? = selectRack(region)
 
     fun viewNumberOfWineRacks(): Int = wineCellar.numberOfRacks
 
@@ -101,13 +101,13 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
         .fold(0) { acc, bottle -> bottle.takeIf { yearRange.contains(it.year) }?.let { acc + 1 } ?: acc }
 
 
-    private fun selectRack(region: Region): Rack<Bottle>? = wineCellar.wineRacks[region.name]
+    private fun selectRack(region: Region): Rack<T>? = wineCellar.wineRacks[region.name]
 
     private fun selectPosition(
-        wineRack: Rack<Bottle>,
+        wineRack: Rack<T>,
         color: Color,
         category: Category,
-        condition: (Bottle?) -> Boolean = { true }
+        condition: (T?) -> Boolean = { true }
     ): Position? {
         val categoryOnRackSize = category
             .let { if (wineRack.capacity.nbOfShelves == 1 && it == BEST) GOOD else it }
@@ -119,7 +119,7 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
         }
     }
 
-    private fun selectShelf(wineRack: Rack<Bottle>, color: Color, category: Category): Int =
+    private fun selectShelf(wineRack: Rack<T>, color: Color, category: Category): Int =
         when (category) {
             BEST -> 0
             else -> when (color) {
@@ -129,7 +129,7 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
             }
         }
 
-    private fun selectSlot(shelf: List<Bottle?>, category: Category, condition: (Bottle?) -> Boolean): Int? =
+    private fun selectSlot(shelf: List<T?>, category: Category, condition: (T?) -> Boolean): Int? =
         when (category) {
             BEST -> shelf.indexOfFirst { condition(it) }
 
@@ -152,6 +152,6 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
 
         }?.takeIf { it > -1 }
 
-    private infix fun Int.orLastShelf(wineRack: Rack<Bottle>) =
+    private infix fun Int.orLastShelf(wineRack: Rack<T>) =
         this.takeIf { it < wineRack.capacity.nbOfShelves } ?: (wineRack.capacity.nbOfShelves - 1)
 }
