@@ -40,14 +40,14 @@ class BottleContext(
 }
 
 @WineCellarOrganizerDsl
-class WineCellarDimensionsContext {
+class WineCellarDimensionsContext<T : Bottle> {
     private val capacities = ArrayList<Capacity>()
 
     fun wineRack(capacity: Capacity) {
         capacities += capacity
     }
 
-    fun build(): WineCellarOrganizer =
+    fun build(): WineCellarOrganizer<T> =
         WineCellarOrganizer(
             *capacities.groupingBy { it }
                 .eachCount()
@@ -57,35 +57,39 @@ class WineCellarDimensionsContext {
         )
 }
 
-fun OrganizeWineCellar(init: WineCellarDimensionsContext.() -> Unit): WineCellarOrganizer =
-    WineCellarDimensionsContext().apply(init).build()
+fun <T : Bottle> OrganizeWineCellar(init: WineCellarDimensionsContext<T>.() -> Unit): WineCellarOrganizer<T> =
+    WineCellarDimensionsContext<T>().apply(init).build()
 
 @WineCellarOrganizerDsl
-class StoreContext(
-    private val cellar: WineCellarOrganizer,
+class StoreContext<T : Bottle>(
+    private val cellar: WineCellarOrganizer<T>,
 ) {
 
-    fun bottle(
-        init: BottleContext.() -> Unit,
-    ) {
-        cellar.storeBottle(BottleContext().apply(init).build())
+    fun store(bottle: T) {
+        cellar.storeBottle(bottle)
     }
 
     fun build() = cellar
 }
 
-fun WineCellarOrganizer.storing(init: StoreContext.() -> Unit): WineCellarOrganizer =
+fun StoreContext<in Bottle>.bottle(
+    init: BottleContext.() -> Unit,
+) {
+    store(BottleContext().apply(init).build())
+}
+
+fun <T : Bottle> WineCellarOrganizer<T>.storing(init: StoreContext<T>.() -> Unit): WineCellarOrganizer<T> =
     StoreContext(this).apply(init).build()
 
 infix fun Color.from(region: Region) = this to region
 
-fun WineCellarOrganizer.displayWineRacks() {
+fun <T : Bottle> WineCellarOrganizer<T>.displayWineRacks() {
     printWineRack(BORDEAUX)
     printWineRack(ALSACE)
     printWineRack(BOURGOGNE)
 }
 
-private fun WineCellarOrganizer.printWineRack(region: Region) {
+private fun <T : Bottle> WineCellarOrganizer<T>.printWineRack(region: Region) {
     val wineRack = viewWineRackOf(region)
     if (wineRack != null) {
         println("$region (${wineRack.rackId})")
@@ -93,7 +97,7 @@ private fun WineCellarOrganizer.printWineRack(region: Region) {
     }
 }
 
-fun WineCellarOrganizer.displayNextBest(colorToRegion: Pair<Color, Region>)  {
+fun <T : Bottle> WineCellarOrganizer<T>.displayNextBest(colorToRegion: Pair<Color, Region>)  {
     val (color, region) = colorToRegion
     println("Next best bottle : ${viewBestBottleOf(color, region)}")
 }

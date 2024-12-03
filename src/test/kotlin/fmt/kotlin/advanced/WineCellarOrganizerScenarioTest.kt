@@ -12,7 +12,7 @@ class WineCellarOrganizerScenarioTest {
 
     @Test
     fun `should get next best bottle`() {
-        val organizeWineCellar: WineCellarOrganizer = OrganizeWineCellar {
+        val organizeWineCellar = OrganizeWineCellar<Bottle> {
             // Given
             wineRack(4 by 10)
             wineRack(4 by 10)
