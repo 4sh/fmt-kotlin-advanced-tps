@@ -14,8 +14,8 @@ class TastingTest {
         val rackForStandardProducer: WriteableRack<Standard> = rack
         val rackForConsumer: ReadableRack<WineContainer> = rack
 
-        magnumProducer(rackForMagnumProducer, 5)
-        standardProducer(rackForStandardProducer, 5)
+        producer(rackForMagnumProducer, 5)
+        producer(rackForStandardProducer, 5)
 
         wineContainerConsumer(rackForConsumer).toList() shouldBe listOf(
             "drink : Magnum Château Beau Rivage 2012",

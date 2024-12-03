@@ -3,15 +3,16 @@ package fmt.kotlin.advanced
 import fmt.kotlin.advanced.Color.RED
 import fmt.kotlin.advanced.Region.BORDEAUX
 
+// tp7-step6
 
-fun magnumProducer(rack: WriteableRack<Magnum>, numberToProduce: Int) {
+fun <T : Bottle> producer(rack: WriteableRack<T>, numberToProduce: Int) {
     val alreadyPresent = rack.numberOf
     sequence {
         while (true) {
-            yield(Magnum("Château Beau Rivage", 2012, BORDEAUX, RED, 1, null, 1))
-            yield(Magnum("Château Saint-Pierre", 2016, BORDEAUX, RED, 15, null, 2))
-            yield(Magnum("Château Latour", 2012, BORDEAUX, RED, 18, null, 3))
-            yield(Magnum("Château Meyney", 2018, BORDEAUX, RED, 19, keepUntil = 2042, 4))
+            yield(produceBottle("Château Beau Rivage", 2012, BORDEAUX, RED, 1, null))
+            yield(produceBottle("Château Saint-Pierre", 2016, BORDEAUX, RED, 15, null))
+            yield(produceBottle("Château Latour", 2012, BORDEAUX, RED, 18, null))
+            yield(produceBottle("Château Meyney", 2018, BORDEAUX, RED, 19, keepUntil = 2042))
         }
     }.take(numberToProduce).forEachIndexed { index, bottle ->
         rack.store(
@@ -21,22 +22,10 @@ fun magnumProducer(rack: WriteableRack<Magnum>, numberToProduce: Int) {
     }
 }
 
-fun standardProducer(rack: WriteableRack<Standard>, numberToProduce: Int) {
-    val alreadyPresent = rack.numberOf
-    sequence {
-        while (true) {
-            yield(Standard("Château Beau Rivage", 2012, BORDEAUX, RED, 1, null))
-            yield(Standard("Château Saint-Pierre", 2016, BORDEAUX, RED, 15, null))
-            yield(Standard("Château Latour", 2012, BORDEAUX, RED, 18, null))
-            yield(Standard("Château Meyney", 2018, BORDEAUX, RED, 19, keepUntil = 2042))
-        }
-    }.take(numberToProduce).forEachIndexed { index, bottle ->
-        rack.store(
-            bottle,
-            (alreadyPresent + index) / rack.capacity.maxSlotByShelf at (alreadyPresent + index) % rack.capacity.maxSlotByShelf
-        )
-    }
-}
+fun produceBottle(
+
+)
+
 
 fun wineContainerConsumer(rack: ReadableRack<WineContainer>): Sequence<String> {
     return sequence {
