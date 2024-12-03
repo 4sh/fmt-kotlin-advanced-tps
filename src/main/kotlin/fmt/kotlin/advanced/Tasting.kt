@@ -3,16 +3,15 @@ package fmt.kotlin.advanced
 import fmt.kotlin.advanced.Color.RED
 import fmt.kotlin.advanced.Region.BORDEAUX
 
-// tp7-step4
 
 fun magnumProducer(rack: WriteableRack<Magnum>, numberToProduce: Int) {
     val alreadyPresent = rack.numberOf
     sequence {
         while (true) {
-            yield(Magnum("Château Beau Rivage", 2012, BORDEAUX, RED, 1, null))
-            yield(Magnum("Château Saint-Pierre", 2016, BORDEAUX, RED, 15, null))
-            yield(Magnum("Château Latour", 2012, BORDEAUX, RED, 18, null))
-            yield(Magnum("Château Meyney", 2018, BORDEAUX, RED, 19, keepUntil = 2042))
+            yield(Magnum("Château Beau Rivage", 2012, BORDEAUX, RED, 1, null, 1))
+            yield(Magnum("Château Saint-Pierre", 2016, BORDEAUX, RED, 15, null, 2))
+            yield(Magnum("Château Latour", 2012, BORDEAUX, RED, 18, null, 3))
+            yield(Magnum("Château Meyney", 2018, BORDEAUX, RED, 19, keepUntil = 2042, 4))
         }
     }.take(numberToProduce).forEachIndexed { index, bottle ->
         rack.store(

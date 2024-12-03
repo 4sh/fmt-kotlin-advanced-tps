@@ -2,11 +2,7 @@ package fmt.kotlin.advanced
 
 import fmt.kotlin.advanced.Color.RED
 import fmt.kotlin.advanced.Region.BORDEAUX
-import fmt.kotlin.advanced.test.dsl.OrganizeWineCellar
-import fmt.kotlin.advanced.test.dsl.displayNextBest
-import fmt.kotlin.advanced.test.dsl.displayWineRacks
-import fmt.kotlin.advanced.test.dsl.from
-import fmt.kotlin.advanced.test.dsl.storing
+import fmt.kotlin.advanced.test.dsl.*
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.properties.shouldHaveValue
 import org.junit.jupiter.api.Test
