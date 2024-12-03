@@ -1,6 +1,7 @@
 package fmt.kotlin.advanced
 
 import fmt.kotlin.advanced.Color.RED
+import fmt.kotlin.advanced.Magnum
 import fmt.kotlin.advanced.Region.BORDEAUX
 import fmt.kotlin.advanced.test.dsl.OrganizeWineCellar
 import fmt.kotlin.advanced.test.dsl.from
@@ -13,7 +14,7 @@ class WineCellarOrganizerScenarioTest {
 
     @Test
     fun `should get next best bottle`() {
-        val organizeWineCellar: WineCellarOrganizer = OrganizeWineCellar {
+        val organizeWineCellar: WineCellarOrganizer<Magnum> = OrganizeWineCellar {
             // Given
             wineCellar(4 by 10)
             wineCellar(4 by 10)

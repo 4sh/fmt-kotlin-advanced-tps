@@ -1,7 +1,6 @@
 package fmt.kotlin.advanced
 
 import fmt.kotlin.advanced.Color.*
-import fmt.kotlin.advanced.*
 import fmt.kotlin.advanced.Region.*
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.throwables.shouldThrow
@@ -14,29 +13,28 @@ import io.kotest.matchers.types.shouldBeSameInstanceAs
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-class WineCellarOrganizerTest {
+abstract class BaseTestWineCellarOrganizer<T : Bottle> {
 
-    fun commonRedBottle() = Bottle("Château Beau Rivage", 2012, BORDEAUX, RED, 1, null)
-    fun goodRedBottle() = Bottle("Château Saint-Pierre", 2016, BORDEAUX, RED, 15, null)
-    fun bestRedBottle() = Bottle("Château Latour", 2012, BORDEAUX, RED, 18, null)
-    fun redBottleToKeep() = Bottle("Château Meyney", 2018, BORDEAUX, RED, 19, keepUntil = 2042)
+    abstract fun commonRedBottle() : T
+    abstract fun goodRedBottle() : T
+    abstract fun bestRedBottle() : T
+    abstract fun redBottleToKeep() : T
 
-    fun commonPinkBottle() = Bottle("Mouton Cadet", 2023, BORDEAUX, PINK, 14, null)
-    fun goodPinkBottle() = Bottle("Château Saint Catherine", 2023, BORDEAUX, PINK, 15, null)
-    fun bestPinkBottle() = Bottle("Château Malagar", 2020, BORDEAUX, PINK, 18, null)
-    fun pinkBottleToKeep() = Bottle("Château Simone", 2023, BORDEAUX, PINK, 19, keepUntil = 2033)
+    abstract fun commonPinkBottle() : T
+    abstract fun goodPinkBottle() : T
+    abstract fun bestPinkBottle() : T
+    abstract fun pinkBottleToKeep() : T
 
 
-    fun commonWhiteBottle() = Bottle("Château Les Maubats", 2022, BORDEAUX, WHITE, 14, null)
-    fun goodWhiteBottle() = Bottle("Château Suau", 2020, BORDEAUX, WHITE, 15, null)
-    fun bestWhiteBottle() = Bottle("Château d'Yquem", 2005, BORDEAUX, WHITE, 18, null)
-    fun whiteBottleToKeep() = Bottle("Château Meyney", 2018, BORDEAUX, WHITE, 19, keepUntil = 2042)
-
+    abstract fun commonWhiteBottle() : T
+    abstract fun goodWhiteBottle() : T
+    abstract fun bestWhiteBottle() : T
+    abstract fun whiteBottleToKeep() : T
 
     @Nested
     inner class `with racks having sufficent space` {
 
-        val wineOrganizer = WineCellarOrganizer(3 to (4 by 6))
+        val wineOrganizer =  WineCellarOrganizer<T>(3 to (4 by 6))
 
         @Test
         fun `a stored bottle should can be viewed`() {
@@ -541,7 +539,7 @@ class WineCellarOrganizerTest {
     @Nested
     inner class `with racks having unique shelf` {
 
-        val wineOrganizer = WineCellarOrganizer(3 to (1 by 6))
+        val wineOrganizer = WineCellarOrganizer<T>(3 to (1 by 6))
 
         @Nested
         inner class `a common bottle` {
@@ -868,7 +866,7 @@ class WineCellarOrganizerTest {
     @Nested
     inner class `with racks having two shelves` {
 
-        val wineOrganizer = WineCellarOrganizer(3 to (2 by 6))
+        val wineOrganizer = WineCellarOrganizer<T>(3 to (2 by 6))
 
         @Nested
         inner class `a common bottle` {
@@ -1073,7 +1071,7 @@ class WineCellarOrganizerTest {
     @Nested
     inner class `with racks having three shelves` {
 
-        val wineOrganizer = WineCellarOrganizer(3 to (3 by 6))
+        val wineOrganizer = WineCellarOrganizer<T>(3 to (3 by 6))
 
         @Nested
         inner class `a common bottle` {
@@ -1164,14 +1162,14 @@ class WineCellarOrganizerTest {
     @Nested
     inner class `with one rack having sufficent space` {
 
-        val wineOrganizer = WineCellarOrganizer(1 to (4 by 6))
+        val wineOrganizer = WineCellarOrganizer<T>(1 to (4 by 6))
 
         @Test
         fun `stored bottle from regions should can be viewed`() {
             // Given
             val bordeauxRedBottle = commonRedBottle()
-            val alsaceBottle = bordeauxRedBottle.copyBottle<Bottle>(region = ALSACE)
-            val bourgogneBottle = bordeauxRedBottle.copyBottle<Bottle>(region = BOURGOGNE)
+            val alsaceBottle = bordeauxRedBottle.copyBottle<T>(region = ALSACE)
+            val bourgogneBottle = bordeauxRedBottle.copyBottle<T>(region = BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
             wineOrganizer.storeBottle(alsaceBottle)
             wineOrganizer.storeBottle(bourgogneBottle)
@@ -1203,8 +1201,8 @@ class WineCellarOrganizerTest {
         fun `stored bottle from regions should can be taken`() {
             // Given
             val bordeauxRedBottle = commonRedBottle()
-            val alsaceBottle = bordeauxRedBottle.copyBottle<Bottle>(region = ALSACE)
-            val bourgogneBottle = bordeauxRedBottle.copyBottle<Bottle>(region = BOURGOGNE)
+            val alsaceBottle = bordeauxRedBottle.copyBottle<T>(region = ALSACE)
+            val bourgogneBottle = bordeauxRedBottle.copyBottle<T>(region = BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
             wineOrganizer.storeBottle(alsaceBottle)
             wineOrganizer.storeBottle(bourgogneBottle)
@@ -1236,14 +1234,14 @@ class WineCellarOrganizerTest {
     @Nested
     inner class `with two racks having sufficent space` {
 
-        val wineOrganizer = WineCellarOrganizer(2 to (4 by 6))
+        val wineOrganizer = WineCellarOrganizer<T>(2 to (4 by 6))
 
         @Test
         fun `stored bottle from regions should can be viewed`() {
             // Given
             val bordeauxRedBottle = commonRedBottle()
-            val alsaceBottle = bordeauxRedBottle.copyBottle<Bottle>(region = ALSACE)
-            val bourgogneBottle = bordeauxRedBottle.copyBottle<Bottle>(region = BOURGOGNE)
+            val alsaceBottle = bordeauxRedBottle.copyBottle<T>(region = ALSACE)
+            val bourgogneBottle = bordeauxRedBottle.copyBottle<T>(region = BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
             wineOrganizer.storeBottle(alsaceBottle)
             wineOrganizer.storeBottle(bourgogneBottle)
@@ -1275,8 +1273,8 @@ class WineCellarOrganizerTest {
         fun `stored bottle from regions should can be taken`() {
             // Given
             val bordeauxRedBottle = commonRedBottle()
-            val alsaceBottle = bordeauxRedBottle.copyBottle<Bottle>(region = ALSACE)
-            val bourgogneBottle = bordeauxRedBottle.copyBottle<Bottle>(region = BOURGOGNE)
+            val alsaceBottle = bordeauxRedBottle.copyBottle<T>(region = ALSACE)
+            val bourgogneBottle = bordeauxRedBottle.copyBottle<T>(region = BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
             wineOrganizer.storeBottle(alsaceBottle)
             wineOrganizer.storeBottle(bourgogneBottle)
@@ -1308,7 +1306,7 @@ class WineCellarOrganizerTest {
     @Nested
     inner class `with some bottles` {
 
-        val wineOrganizer = WineCellarOrganizer(2 to Capacity(4, 30))
+        val wineOrganizer = WineCellarOrganizer<T>(2 to Capacity(4, 30))
 
         @Test
         fun `should compute nb bottles from region`() {
@@ -1340,7 +1338,7 @@ class WineCellarOrganizerTest {
 
             // Then
             assertSoftly {
-                result shouldBe  10
+                result shouldBe 10
             }
         }
 
@@ -1417,8 +1415,8 @@ class WineCellarOrganizerTest {
         }
     }
 
-    private fun Rack<Bottle>.getAt(shelfIndex: Int, slotIndex: Int) = this[shelfIndex][slotIndex]
-    private fun Rack<Bottle>.getAt(shelfIndex: Int) = this[shelfIndex]
+    private fun <T : Bottle> Rack<T>.getAt(shelfIndex: Int, slotIndex: Int) = this[shelfIndex][slotIndex]
+    private fun <T : Bottle> Rack<T>.getAt(shelfIndex: Int) = this[shelfIndex]
 }
 
 

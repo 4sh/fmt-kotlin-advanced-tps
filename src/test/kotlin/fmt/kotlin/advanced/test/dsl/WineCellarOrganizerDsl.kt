@@ -11,21 +11,21 @@ annotation class WineCellarOrganizerDsl
 @WineCellarOrganizerDsl
 class StoreContext {
 
-    private val bottlesToStore = mutableListOf<Bottle>()
+    private val bottlesToStore = mutableListOf<Magnum>()
 
-    operator fun Bottle.unaryPlus() {
+    operator fun Magnum.unaryPlus() {
         bottlesToStore.add(this)
     }
 
-    fun bottle(init: BottleContext.() -> Unit): Bottle {
-        return BottleContext().apply { init() }.build()
+    fun bottle(init: MagnumContext.() -> Unit): Magnum {
+        return MagnumContext().apply { init() }.build()
     }
 
-    fun build(): List<Bottle> = bottlesToStore.toList()
+    fun build(): List<Magnum> = bottlesToStore.toList()
 }
 
 @WineCellarOrganizerDsl
-class BottleContext(
+class MagnumContext(
     var name: String? = null,
     var year: Int? = null,
     var region: Region? = null,
@@ -48,7 +48,7 @@ class BottleContext(
         "Château Meyney"
     )
 
-    fun build(): Bottle = Bottle(
+    fun build(): Magnum = Magnum(
         name = name ?: namesExample.random(),
         year = year ?: Random.nextInt(2010, 2020),
         region = region ?: Region.entries.random(),
@@ -63,7 +63,7 @@ class WineCellarContext {
 
     private val capacities: MutableList<Capacity> = mutableListOf()
 
-    private lateinit var wineCellarOrganizer: WineCellarOrganizer
+    private lateinit var wineCellarOrganizer: WineCellarOrganizer<Magnum>
 
     fun wineCellar(capacity: Capacity) {
         capacities.add(capacity)
@@ -109,7 +109,7 @@ class WineCellarContext {
 }
 
 object OrganizeWineCellar {
-    operator fun invoke(init: WineCellarContext.() -> Unit): WineCellarOrganizer {
+    operator fun invoke(init: WineCellarContext.() -> Unit): WineCellarOrganizer<Magnum> {
         return WineCellarContext().apply(init).build()
     }
 }

@@ -3,7 +3,6 @@ package fmt.kotlin.advanced
 import fmt.kotlin.advanced.Color.RED
 import fmt.kotlin.advanced.Region.BORDEAUX
 
-// tp7-step4
 
 fun magnumProducer(rack: WriteableRack<Magnum>, numberToProduce: Int) {
     val alreadyPresent = rack.numberOf
