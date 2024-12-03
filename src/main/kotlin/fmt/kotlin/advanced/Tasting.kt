@@ -5,7 +5,7 @@ import fmt.kotlin.advanced.Region.BORDEAUX
 
 // tp7-step4
 
-fun magnumProducer(rack: Rack<Magnum>, numberToProduce: Int) {
+fun magnumProducer(rack: WriteableRack<Magnum>, numberToProduce: Int) {
     val alreadyPresent = rack.numberOf
     sequence {
         while (true) {
@@ -22,7 +22,7 @@ fun magnumProducer(rack: Rack<Magnum>, numberToProduce: Int) {
     }
 }
 
-fun standardProducer(rack: Rack<Standard>, numberToProduce: Int) {
+fun standardProducer(rack: WriteableRack<Standard>, numberToProduce: Int) {
     val alreadyPresent = rack.numberOf
     sequence {
         while (true) {
@@ -39,7 +39,7 @@ fun standardProducer(rack: Rack<Standard>, numberToProduce: Int) {
     }
 }
 
-fun wineContainerConsumer(rack: Rack<WineContainer>): Sequence<String> {
+fun wineContainerConsumer(rack: ReadableRack<WineContainer>): Sequence<String> {
     return sequence {
         var position = 0 at 0
         while (position <= rack.capacity) {
