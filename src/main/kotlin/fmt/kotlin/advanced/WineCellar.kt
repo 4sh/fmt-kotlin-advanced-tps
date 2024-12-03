@@ -1,6 +1,6 @@
 package fmt.kotlin.advanced
 
-import kotlin.collections.distinct
+// tp7-step5
 
 class WineCellar(val wineRacks: Map<String, Rack<Bottle>>) {
     val numberOfRacks = wineRacks.values.distinct().size
