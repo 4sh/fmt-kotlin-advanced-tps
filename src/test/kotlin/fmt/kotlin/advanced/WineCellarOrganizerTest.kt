@@ -1175,8 +1175,8 @@ class WineCellarOrganizerTest {
         fun `stored bottle from regions should can be viewed`() {
             // Given
             val bordeauxRedBottle = commonRedBottle()
-            val alsaceBottle = bordeauxRedBottle.copy(region = ALSACE)
-            val bourgogneBottle = bordeauxRedBottle.copy(region = BOURGOGNE)
+            val alsaceBottle = bordeauxRedBottle.copyBottle<Bottle>(region = ALSACE)
+            val bourgogneBottle = bordeauxRedBottle.copyBottle<Bottle>(region = BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
             wineOrganizer.storeBottle(alsaceBottle)
             wineOrganizer.storeBottle(bourgogneBottle)
@@ -1208,8 +1208,8 @@ class WineCellarOrganizerTest {
         fun `stored bottle from regions should can be taken`() {
             // Given
             val bordeauxRedBottle = commonRedBottle()
-            val alsaceBottle = bordeauxRedBottle.copy(region = ALSACE)
-            val bourgogneBottle = bordeauxRedBottle.copy(region = BOURGOGNE)
+            val alsaceBottle = bordeauxRedBottle.copyBottle<Bottle>(region = ALSACE)
+            val bourgogneBottle = bordeauxRedBottle.copyBottle<Bottle>(region = BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
             wineOrganizer.storeBottle(alsaceBottle)
             wineOrganizer.storeBottle(bourgogneBottle)
@@ -1248,8 +1248,8 @@ class WineCellarOrganizerTest {
         fun `stored bottle from regions should can be viewed`() {
             // Given
             val bordeauxRedBottle = commonRedBottle()
-            val alsaceBottle = bordeauxRedBottle.copy(region = ALSACE)
-            val bourgogneBottle = bordeauxRedBottle.copy(region = BOURGOGNE)
+            val alsaceBottle = bordeauxRedBottle.copyBottle<Bottle>(region = ALSACE)
+            val bourgogneBottle = bordeauxRedBottle.copyBottle<Bottle>(region = BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
             wineOrganizer.storeBottle(alsaceBottle)
             wineOrganizer.storeBottle(bourgogneBottle)
@@ -1281,8 +1281,8 @@ class WineCellarOrganizerTest {
         fun `stored bottle from regions should can be taken`() {
             // Given
             val bordeauxRedBottle = commonRedBottle()
-            val alsaceBottle = bordeauxRedBottle.copy(region = ALSACE)
-            val bourgogneBottle = bordeauxRedBottle.copy(region = BOURGOGNE)
+            val alsaceBottle = bordeauxRedBottle.copyBottle<Bottle>(region = ALSACE)
+            val bourgogneBottle = bordeauxRedBottle.copyBottle<Bottle>(region = BOURGOGNE)
             wineOrganizer.storeBottle(bordeauxRedBottle)
             wineOrganizer.storeBottle(alsaceBottle)
             wineOrganizer.storeBottle(bourgogneBottle)
@@ -1320,26 +1320,26 @@ class WineCellarOrganizerTest {
         @Test
         fun `should compute nb bottles from region`() {
             // Given
-            wineOrganizer.storeBottle(commonRedBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(commonRedBottle().copyBottle(region = ALSACE))
             wineOrganizer.storeBottle(redBottleToKeep())
-            wineOrganizer.storeBottle(redBottleToKeep().copy(region = ALSACE))
-            wineOrganizer.storeBottle(redBottleToKeep().copy(region = BOURGOGNE))
+            wineOrganizer.storeBottle(redBottleToKeep().copyBottle(region = ALSACE))
+            wineOrganizer.storeBottle(redBottleToKeep().copyBottle(region = BOURGOGNE))
             wineOrganizer.storeBottle(redBottleToKeep())
             wineOrganizer.storeBottle(goodWhiteBottle())
-            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(goodWhiteBottle().copyBottle(region = ALSACE))
             wineOrganizer.storeBottle(goodWhiteBottle())
-            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(goodWhiteBottle().copyBottle(region = ALSACE))
             wineOrganizer.storeBottle(goodWhiteBottle())
-            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
-            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(goodWhiteBottle().copyBottle(region = ALSACE))
+            wineOrganizer.storeBottle(bestWhiteBottle().copyBottle(region = ALSACE))
             wineOrganizer.storeBottle(bestWhiteBottle())
-            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = BOURGOGNE))
+            wineOrganizer.storeBottle(bestWhiteBottle().copyBottle(region = BOURGOGNE))
             wineOrganizer.storeBottle(bestWhiteBottle())
-            wineOrganizer.storeBottle(commonRedBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(commonRedBottle().copyBottle(region = ALSACE))
             wineOrganizer.storeBottle(bestWhiteBottle())
             wineOrganizer.storeBottle(goodWhiteBottle())
             wineOrganizer.storeBottle(goodWhiteBottle())
-            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = BOURGOGNE))
+            wineOrganizer.storeBottle(bestWhiteBottle().copyBottle(region = BOURGOGNE))
 
 
             // When
@@ -1354,26 +1354,26 @@ class WineCellarOrganizerTest {
         @Test
         fun `should compute nb bottles by region`() {
             // Given
-            wineOrganizer.storeBottle(commonRedBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(commonRedBottle().copyBottle(region = ALSACE))
             wineOrganizer.storeBottle(redBottleToKeep())
-            wineOrganizer.storeBottle(redBottleToKeep().copy(region = ALSACE))
-            wineOrganizer.storeBottle(redBottleToKeep().copy(region = BOURGOGNE))
+            wineOrganizer.storeBottle(redBottleToKeep().copyBottle(region = ALSACE))
+            wineOrganizer.storeBottle(redBottleToKeep().copyBottle(region = BOURGOGNE))
             wineOrganizer.storeBottle(redBottleToKeep())
             wineOrganizer.storeBottle(goodWhiteBottle())
-            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(goodWhiteBottle().copyBottle(region = ALSACE))
             wineOrganizer.storeBottle(goodWhiteBottle())
-            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(goodWhiteBottle().copyBottle(region = ALSACE))
             wineOrganizer.storeBottle(goodWhiteBottle())
-            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
-            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(goodWhiteBottle().copyBottle(region = ALSACE))
+            wineOrganizer.storeBottle(bestWhiteBottle().copyBottle(region = ALSACE))
             wineOrganizer.storeBottle(bestWhiteBottle())
-            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = BOURGOGNE))
+            wineOrganizer.storeBottle(bestWhiteBottle().copyBottle(region = BOURGOGNE))
             wineOrganizer.storeBottle(bestWhiteBottle())
-            wineOrganizer.storeBottle(commonRedBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(commonRedBottle().copyBottle(region = ALSACE))
             wineOrganizer.storeBottle(bestWhiteBottle())
             wineOrganizer.storeBottle(goodWhiteBottle())
             wineOrganizer.storeBottle(goodWhiteBottle())
-            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = BOURGOGNE))
+            wineOrganizer.storeBottle(bestWhiteBottle().copyBottle(region = BOURGOGNE))
 
 
             // When
@@ -1390,26 +1390,26 @@ class WineCellarOrganizerTest {
         @Test
         fun `should compute nb bottles by region between`() {
             // Given
-            wineOrganizer.storeBottle(commonRedBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(commonRedBottle().copyBottle(region = ALSACE))
             wineOrganizer.storeBottle(redBottleToKeep())
-            wineOrganizer.storeBottle(redBottleToKeep().copy(region = ALSACE))
-            wineOrganizer.storeBottle(redBottleToKeep().copy(region = BOURGOGNE))
+            wineOrganizer.storeBottle(redBottleToKeep().copyBottle(region = ALSACE))
+            wineOrganizer.storeBottle(redBottleToKeep().copyBottle(region = BOURGOGNE))
             wineOrganizer.storeBottle(redBottleToKeep())
             wineOrganizer.storeBottle(goodWhiteBottle())
-            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(goodWhiteBottle().copyBottle(region = ALSACE))
             wineOrganizer.storeBottle(goodWhiteBottle())
-            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(goodWhiteBottle().copyBottle(region = ALSACE))
             wineOrganizer.storeBottle(goodWhiteBottle())
-            wineOrganizer.storeBottle(goodWhiteBottle().copy(region = ALSACE))
-            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(goodWhiteBottle().copyBottle(region = ALSACE))
+            wineOrganizer.storeBottle(bestWhiteBottle().copyBottle(region = ALSACE))
             wineOrganizer.storeBottle(bestWhiteBottle())
-            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = BOURGOGNE))
+            wineOrganizer.storeBottle(bestWhiteBottle().copyBottle(region = BOURGOGNE))
             wineOrganizer.storeBottle(bestWhiteBottle())
-            wineOrganizer.storeBottle(commonRedBottle().copy(region = ALSACE))
+            wineOrganizer.storeBottle(commonRedBottle().copyBottle(region = ALSACE))
             wineOrganizer.storeBottle(bestWhiteBottle())
             wineOrganizer.storeBottle(goodWhiteBottle())
             wineOrganizer.storeBottle(goodWhiteBottle())
-            wineOrganizer.storeBottle(bestWhiteBottle().copy(region = BOURGOGNE))
+            wineOrganizer.storeBottle(bestWhiteBottle().copyBottle(region = BOURGOGNE))
 
 
             // When
