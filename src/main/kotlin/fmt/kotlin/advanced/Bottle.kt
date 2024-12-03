@@ -101,7 +101,7 @@ data class Magnum(
     override val color: Color,
     override val rate: Int,
     override val keepUntil: Int? = null,
-    val number: Int
+    val number: Int? = null
 ) : Bottle(name, year, region, color, rate, keepUntil)
 
 data class Standard(
