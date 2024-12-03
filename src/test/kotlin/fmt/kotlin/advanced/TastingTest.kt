@@ -11,9 +11,9 @@ class TastingTest {
     fun `should compatible with producer and consumer`() {
         // Given
         val rack = Rack<Bottle>(4 by 4)
-        val rackForMagnumProducer: Rack<Magnum> = rack
-        val rackForStandardProducer: Rack<Standard> = rack
-        val rackForConsumer: Rack<WineContainer> = rack
+        val rackForMagnumProducer: WriteableRack<Magnum> = rack
+        val rackForStandardProducer: WriteableRack<Standard> = rack
+        val rackForConsumer: ReadableRack<WineContainer> = rack
 
         magnumProducer(rackForMagnumProducer, 5)
         standardProducer(rackForStandardProducer, 5)
