@@ -3,7 +3,7 @@ package fmt.kotlin.advanced
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
-// tp7-step3
+// tp7-step4
 
 class TastingTest {
 
@@ -11,9 +11,9 @@ class TastingTest {
     fun `should compatible with producer and consumer`() {
         // Given
         val rack = Rack<Bottle>(4 by 4)
-        val rackForMagnumProducer: Rack<in Magnum> = rack
-        val rackForStandardProducer: Rack<in Standard> = rack
-        val rackForConsumer: Rack<out WineContainer> = rack
+        val rackForMagnumProducer: Rack<Magnum> = rack
+        val rackForStandardProducer: Rack<Standard> = rack
+        val rackForConsumer: Rack<WineContainer> = rack
 
         magnumProducer(rackForMagnumProducer, 5)
         standardProducer(rackForStandardProducer, 5)
