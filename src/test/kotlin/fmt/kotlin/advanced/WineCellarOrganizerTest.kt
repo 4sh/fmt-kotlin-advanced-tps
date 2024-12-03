@@ -487,7 +487,7 @@ class WineCellarOrganizerTest {
                 println(wineOrganizer.viewWineRackOf(BORDEAUX))
                 firstTaken shouldBeSameInstanceAs commonRedBottle1
                 secondTaken shouldBeSameInstanceAs commonRedBottle2
-                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOfBottles shouldBe 3
+                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOf shouldBe 3
             }
 
             @Test
@@ -510,7 +510,7 @@ class WineCellarOrganizerTest {
                 println(wineOrganizer.viewWineRackOf(BORDEAUX))
                 firstTaken shouldBeSameInstanceAs goodRedBottle1
                 secondTaken shouldBeSameInstanceAs goodRedBottle2
-                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOfBottles shouldBe 3
+                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOf shouldBe 3
             }
 
             @Test
@@ -533,7 +533,7 @@ class WineCellarOrganizerTest {
                 println(wineOrganizer.viewWineRackOf(BORDEAUX))
                 firstTaken shouldBeSameInstanceAs bestRedBottle1
                 secondTaken shouldBeSameInstanceAs bestRedBottle2
-                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOfBottles shouldBe 3
+                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOf shouldBe 3
             }
         }
     }
@@ -818,7 +818,7 @@ class WineCellarOrganizerTest {
                 println(wineOrganizer.viewWineRackOf(BORDEAUX))
                 firstTaken shouldBeSameInstanceAs commonRedBottle1
                 secondTaken shouldBeSameInstanceAs commonRedBottle2
-                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOfBottles shouldBe 3
+                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOf shouldBe 3
             }
 
             @Test
@@ -839,7 +839,7 @@ class WineCellarOrganizerTest {
                 println(wineOrganizer.viewWineRackOf(BORDEAUX))
                 firstTaken shouldBeSameInstanceAs goodRedBottle1
                 secondTaken shouldBeSameInstanceAs goodRedBottle2
-                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOfBottles shouldBe 1
+                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOf shouldBe 1
             }
 
             @Test
@@ -860,7 +860,7 @@ class WineCellarOrganizerTest {
                 println(wineOrganizer.viewWineRackOf(BORDEAUX))
                 firstTaken shouldBeSameInstanceAs bestRedBottle1
                 secondTaken shouldBeSameInstanceAs bestRedBottle2
-                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOfBottles shouldBe 1
+                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOf shouldBe 1
             }
         }
     }
@@ -1019,7 +1019,7 @@ class WineCellarOrganizerTest {
                 println(wineOrganizer.viewWineRackOf(BORDEAUX))
                 firstTaken shouldBeSameInstanceAs commonRedBottle1
                 secondTaken shouldBeSameInstanceAs commonRedBottle2
-                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOfBottles shouldBe 3
+                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOf shouldBe 3
             }
 
             @Test
@@ -1042,7 +1042,7 @@ class WineCellarOrganizerTest {
                 println(wineOrganizer.viewWineRackOf(BORDEAUX))
                 firstTaken shouldBeSameInstanceAs goodRedBottle1
                 secondTaken shouldBeSameInstanceAs goodRedBottle2
-                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOfBottles shouldBe 3
+                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOf shouldBe 3
             }
 
             @Test
@@ -1065,7 +1065,7 @@ class WineCellarOrganizerTest {
                 println(wineOrganizer.viewWineRackOf(BORDEAUX))
                 firstTaken shouldBeSameInstanceAs bestRedBottle1
                 secondTaken shouldBeSameInstanceAs bestRedBottle2
-                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOfBottles shouldBe 3
+                wineOrganizer.viewWineRackOf(BORDEAUX)?.numberOf shouldBe 3
             }
         }
     }
@@ -1417,8 +1417,8 @@ class WineCellarOrganizerTest {
         }
     }
 
-    private fun WineRack.getAt(shelfIndex: Int, slotIndex: Int) = this[shelfIndex][slotIndex]
-    private fun WineRack.getAt(shelfIndex: Int) = this[shelfIndex]
+    private fun Rack<Bottle>.getAt(shelfIndex: Int, slotIndex: Int) = this[shelfIndex][slotIndex]
+    private fun Rack<Bottle>.getAt(shelfIndex: Int) = this[shelfIndex]
 }
 
 

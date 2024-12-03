@@ -1,18 +1,17 @@
 package fmt.kotlin.advanced
 
-// tp7-step1
 
-abstract class Consumer<T> {
+abstract class Consumer<in T> {
     abstract fun consume(t: T)
 }
 
-class Printer<T> : Consumer<T>() {
+class Printer<in T> : Consumer<T>() {
     override fun consume(t: T) {
         println()
     }
 }
 
-class Stock<T> : Consumer<T>() {
+class Stock<in T> : Consumer<T>() {
     private val stock: MutableList<T> = mutableListOf()
 
     override fun consume(t: T) {

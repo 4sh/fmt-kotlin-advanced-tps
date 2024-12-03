@@ -2,6 +2,8 @@ package fmt.kotlin.advanced
 
 import java.util.*
 
+// tp7-step2
+
 private const val EMPTY = "empty"
 
 data class Capacity(val nbOfShelves: Int, val maxSlotByShelf: Int)
