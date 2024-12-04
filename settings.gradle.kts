@@ -3,3 +3,8 @@ plugins {
 }
 rootProject.name = "untitled"
 
+include(
+    "modules:core",
+    "modules:ksp-variance-processor",
+    "modules:annotation-variance",
+)
