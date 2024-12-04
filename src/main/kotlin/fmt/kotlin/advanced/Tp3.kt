@@ -97,7 +97,17 @@ class Tp3 {
             val avgCollector = AvgLagStatsCollector()
             val channel = Channel<SimulationResult>()
 
-            val avgCollectorJob = TODO()
+            val avgCollectorJob = launch {
+                while(true) {
+                    val result = channel.receiveCatching()
+                    result.getOrNull()?.also {
+                        avgCollector.collectResult(it)
+                    }
+                    if (result.isClosed) {
+                        return@launch
+                    }
+                }
+            }
 
             withContext(Dispatchers.Default) {
                 (1..100).map { batchIndex ->
@@ -106,7 +116,8 @@ class Tp3 {
                 }.map { batch ->
                     launch {
                         batch.simulate(clockFlow { SimuClock.newClock() }) {
-                            TODO()
+                            collector.collectResult(it)
+                            channel.send(it)
                         }
                     }
                 }.joinAll()
