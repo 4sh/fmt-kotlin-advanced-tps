@@ -17,13 +17,13 @@ class Processor(codeGenerator: CodeGenerator, private val logger: KSPLogger) : S
 
         val annotationName = VarianceInterface::class.qualifiedName
         return if (annotationName != null) {
-            val (validSymbols, invalidSymbols) = resolver.getSymbolsWithAnnotation(annotationName)
+            val (_, invalidSymbols) = resolver.getSymbolsWithAnnotation(annotationName)
                 .partition { it.validate() }
 
-            (// ?).onEach { symbol ->
+            (invalidSymbols).onEach { symbol ->
                 symbol.accept(visitor, Unit)
             }
-            // ?
+            invalidSymbols
         } else {
             emptyList()
         }.also { logger.warn("") }
