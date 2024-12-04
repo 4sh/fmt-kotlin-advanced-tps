@@ -3,6 +3,7 @@ package fmt.kotlin.advanced
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
 import kotlin.test.Test
 
 class Tp3 {
@@ -15,12 +16,12 @@ class Tp3 {
 
     class BatchSimulator(val batchIndex: Int, val simulationsCount: Int, val simulator: Simulator) {
         suspend fun simulate(clockFlow: Flow<Tick>, collector: SimulationResultsCollector) = coroutineScope {
-            TODO()
+            simulateIn(clockFlow, CoroutineScope(coroutineContext), collector)
         }
 
         fun simulateIn(clockFlow: Flow<Tick>, scope: CoroutineScope, collector: SimulationResultsCollector) {
             (1..simulationsCount).map {
-                /* TODO */launch(CoroutineName("Batch${batchIndex}")) {
+                scope.launch(CoroutineName("Batch${batchIndex}")) {
                     simulator.simulate(clockFlow, collector)
                 }
             }
@@ -31,11 +32,18 @@ class Tp3 {
         val thresholdInMs: Long, val batchSimulator: BatchSimulator
     ) {
         suspend fun simulate(clockFlow: Flow<Tick>, collector: SimulationResultsCollector) = coroutineScope {
-            TODO()
+            simulateIn(clockFlow, CoroutineScope(coroutineContext), collector)
         }
 
         fun simulateIn(clockFlow: Flow<Tick>, scope: CoroutineScope, collector: SimulationResultsCollector) {
-           TODO()
+            batchSimulator.simulateIn(
+                clockFlow.onEach {
+                    if (it.absoluteLagInMs > thresholdInMs) {
+                        scope.cancel()
+                    }
+                },
+                scope, collector
+            )
         }
     }
     fun BatchSimulator.withThreshold(thresholdInMs: Long = 200) =
@@ -66,8 +74,16 @@ class Tp3 {
             val simulator = StdSimulator(iterations = 20).withTimeout()
             val collector = SimulationsCountStats()
 
-           TODO()
-
+            withContext(Dispatchers.Default) {
+                (1..100).map { batchIndex ->
+                    BatchSimulator(batchIndex, simulationsCount = 10, simulator)
+                        .withThreshold()
+                }.map { batch ->
+                    launch {
+                        batch.simulate(clockFlow { SimuClock.newClock() }, collector)
+                    }
+                }.joinAll()
+            }
             collector.printStats()
         }
     }
