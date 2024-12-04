@@ -3,6 +3,7 @@ package fmt.kotlin.advanced
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -16,13 +17,13 @@ class Tp3 {
     }
 
     class BatchSimulator(val batchIndex: Int, val simulationsCount: Int, val simulator: Simulator) {
-        suspend fun simulate(clockFlow: Flow<Tick>, collector: SimulationResultsCollector): Unit = coroutineScope {
-            TODO()
+        suspend fun simulate(clockFlow: Flow<Tick>, collector: SimulationResultsCollector) = coroutineScope {
+            simulateIn(clockFlow, CoroutineScope(coroutineContext), collector)
         }
 
         fun simulateIn(clockFlow: Flow<Tick>, scope: CoroutineScope, collector: SimulationResultsCollector) {
             (1..simulationsCount).map {
-                /* TODO */launch(CoroutineName("Batch${batchIndex}")) {
+                scope.launch(CoroutineName("Batch${batchIndex}")) {
                     simulator.simulate(clockFlow, collector)
                 }
             }
@@ -33,14 +34,22 @@ class Tp3 {
         val threshold: Duration,
         val batchSimulator: BatchSimulator,
     ) {
-        suspend fun simulate(clockFlow: Flow<Tick>, collector: SimulationResultsCollector): Unit = coroutineScope {
-            TODO()
+        suspend fun simulate(clockFlow: Flow<Tick>, collector: SimulationResultsCollector) = coroutineScope {
+            simulateIn(clockFlow, CoroutineScope(coroutineContext), collector)
         }
 
         fun simulateIn(clockFlow: Flow<Tick>, scope: CoroutineScope, collector: SimulationResultsCollector) {
-           TODO()
+            batchSimulator.simulateIn(
+                clockFlow.onEach {
+                    if (it.lagPerSecond > threshold) {
+                        scope.cancel()
+                    }
+                },
+                scope, collector
+            )
         }
     }
+
     fun BatchSimulator.withThreshold(threshold: Duration = 200.milliseconds) =
         ThresholdBatchSimulatorDecorator(threshold, this)
 
@@ -69,8 +78,16 @@ class Tp3 {
             val simulator = StdSimulator(iterations = 20).withTimeout()
             val collector = SimulationsCountStats()
 
-           TODO()
-
+            withContext(Dispatchers.Default) {
+                (1..100).map { batchIndex ->
+                    BatchSimulator(batchIndex, simulationsCount = 10, simulator)
+                        .withThreshold()
+                }.map { batch ->
+                    launch {
+                        batch.simulate(clockFlow { SimuClock.newClock() }, collector)
+                    }
+                }.joinAll()
+            }
             collector.printStats()
         }
     }
