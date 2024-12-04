@@ -58,4 +58,36 @@ class Tp1 {
             launch { simulate("B") }
         }
     }
+
+    @Test
+    fun ex4() {
+        val clockFlow = flow {
+            val simuClock = StdSimuClock()
+            while(true) {
+                emit(simuClock.nextTick())
+            }
+        }
+
+        suspend fun simulate(name: String) {
+            val lastTick = clockFlow
+                .take(20)
+                .onEach { println("[$name] $it") }
+                .last()
+            println("[$name] Retard par seconde: ${lastTick.lagPerSecond}")
+        }
+
+        runBlocking {
+            val first = launch {
+                simulate("A")
+            }
+
+            val second = launch {
+                delay(1.seconds)
+                simulate("B")
+            }
+
+            first.join()
+            second.cancel()
+        }
+    }
 }
