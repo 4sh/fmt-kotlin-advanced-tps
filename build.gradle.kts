@@ -5,14 +5,14 @@ plugins {
 group = "fmt.kotlin.advanced"
 version = "1.0-SNAPSHOT"
 
-repositories {
-    mavenCentral()
+allprojects {
+    repositories {
+        mavenCentral()
+    }
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:5.9.1")
-    testImplementation(kotlin("test"))
+
 }
 
 tasks.test {
