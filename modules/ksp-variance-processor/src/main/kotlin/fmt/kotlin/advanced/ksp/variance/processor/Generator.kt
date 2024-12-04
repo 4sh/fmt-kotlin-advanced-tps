@@ -7,12 +7,9 @@ import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.*
 import com.squareup.kotlinpoet.*
-import com.squareup.kotlinpoet.ksp.TypeParameterResolver
-import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
-import com.squareup.kotlinpoet.ksp.toTypeParameterResolver
-import com.squareup.kotlinpoet.ksp.writeTo
+import com.squareup.kotlinpoet.ksp.*
 
-private val ignoredFunctions = setOf("<init>", "toString")
+private val ignoredFunctions = setOf("<init>", "toString", "copy")
 
 class Generator(private val codeGenerator: CodeGenerator, private val logger: KSPLogger) {
 
@@ -67,7 +64,20 @@ class Generator(private val codeGenerator: CodeGenerator, private val logger: KS
     ): List<FunSpec> {
         val classTypeArgumentName = classType.typeParameters.map { it.name.asString() }.toSet()
         return classType.getDeclaredFunctions()
-            //
+            .filter { func -> ignoredFunctions.none { func.simpleName.asString() == it } }
+            .filter { func -> func.getVisibility() == Visibility.PUBLIC }
+            .filter { func ->
+                if (readable) {
+                    func.parameters.flatMap { valueParameter ->
+                        valueParameter.type.getTypeNames()
+                    }.let {
+                        it.intersect(classTypeArgumentName).isEmpty()
+                    }
+                } else {
+                    val returnTypeNames = func.returnType?.getTypeNames() ?: listOf()
+                    returnTypeNames.intersect(classTypeArgumentName).isEmpty()
+                }
+            }
             .toList()
             .mapNotNull { func ->
                 generateFunction(func, typeParamResolver)
@@ -80,15 +90,23 @@ class Generator(private val codeGenerator: CodeGenerator, private val logger: KS
     ): FunSpec? =
         function.returnType?.let { returnType ->
             logger.warn("generate function ${function.simpleName.asString()}")
+            val modifiers = listOf(KModifier.ABSTRACT) + function.modifiers.filter { it == Modifier.OPERATOR }
+                .mapNotNull { it.toKModifier() }
 
-            TODO()
+            FunSpec.builder(function.simpleName.asString())
+                .addModifiers(modifiers)
+                .returns(returnType.toTypeName(typeParamResolver))
+                .addParameters(function.parameters.mapNotNull { param -> generateParam(param, typeParamResolver) })
+                .build()
         }
 
     private fun generateParam(
         param: KSValueParameter,
         typeParamResolver: TypeParameterResolver
     ): ParameterSpec? = param.name?.let {
-        TODO()
+        ParameterSpec.builder(
+            it.asString(), param.type.toTypeName(typeParamResolver)
+        ).build()
     }
 
     private fun generateProperties(
@@ -100,9 +118,15 @@ class Generator(private val codeGenerator: CodeGenerator, private val logger: KS
         .map { prop ->
             logger.warn("generate property ${prop.simpleName.asString()}")
 
-            TODO()
+            PropertySpec.builder(
+                prop.simpleName.asString(),
+                prop.type.toTypeName(typeParamResolver),
+                listOf(KModifier.ABSTRACT)
+            )
+                .mutable(prop.isMutable)
+                .build()
         }
 
     private fun KSTypeReference.getTypeNames() =
-        resolve().arguments.mapNotNull { it.type?.toString() } + resolve().declaration.simpleName.asString()
+        resolve().arguments.mapNotNull { it.type?.toString()?.trimEnd('?') } + resolve().declaration.simpleName.asString()
 }
