@@ -1,14 +1,13 @@
 package fmt.kotlin.advanced
 
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.measureTimedValue
 
 class Tp1 {
     @Test
@@ -63,7 +62,7 @@ class Tp1 {
     fun ex4() {
         val clockFlow = flow {
             val simuClock = StdSimuClock()
-            while(true) {
+            while (true) {
                 emit(simuClock.nextTick())
             }
         }
@@ -88,6 +87,30 @@ class Tp1 {
 
             first.join()
             second.cancel()
+        }
+    }
+
+    @Test
+    fun ex5() {
+        val clockFlow = flow {
+            val simuClock = StdSimuClock()
+            while (true) {
+                emit(simuClock.nextTick())
+            }
+        }
+
+        suspend fun simulate() =
+            clockFlow.take(20).last().lagPerSecond
+
+        runBlocking {
+            val (avgLagPerSecond, totalDuration) = measureTimedValue {
+                (1..10)
+                    .map { async { simulate() } }
+                    .awaitAll()
+                    .average()
+            }
+
+            println("Retard par seconde : $avgLagPerSecond pendant $totalDuration")
         }
     }
 }
