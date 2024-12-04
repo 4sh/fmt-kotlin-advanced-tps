@@ -3,7 +3,6 @@ package fmt.kotlin.advanced
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.take
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.AbstractCoroutineContextElement
@@ -44,10 +43,23 @@ class Tp2 {
         val cancelledCount = AtomicInteger()
         (1..simulations).map { index ->
             async(SimuClockContextElement(index)) {
-                clockFlow.take(20).last().lagInMsPerSecond
-                    .also {
-                        collector.collectResult(SimulationResult(it))
+                withTimeoutOrNull(2500) {
+                    var lag: Double? = null
+                    try {
+                        clockFlow.take(20).collect {
+                            lag = it.lagInMsPerSecond
+                        }
+                    } catch (e: TimeoutCancellationException) {
+                        cancelledCount.incrementAndGet()
+                    } finally {
+                        withContext(NonCancellable) {
+                            lag?.also {
+                                collector.collectResult(SimulationResult(it))
+                            }
+                        }
                     }
+                    lag
+                }
             }
         }
             .awaitAll()
