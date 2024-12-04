@@ -1,13 +1,10 @@
 package fmt.kotlin.advanced
 
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.time.measureTimedValue
 
@@ -20,7 +17,7 @@ class Tp2 {
     }
 
     suspend fun averageLag(clockFlow: Flow<Tick>, simulations: Int) = coroutineScope {
-        (1..simulations).map {
+        (1..simulations).map { index ->
             async { clockFlow.take(20).last().lagInMsPerSecond }
         }.awaitAll()
             .average()
@@ -36,4 +33,30 @@ class Tp2 {
         }
     }
 
+    @Test
+    fun ex2_1() {
+        runBlocking(Dispatchers.Default) {
+            measureTimedValue {
+                averageLag(clockFlow { BlockingSimuClock() }, 5)
+            }.also { println(it) }
+        }
+    }
+
+    @Test
+    fun ex2_2() {
+        runBlocking(Dispatchers.Default) {
+            measureTimedValue {
+                averageLag(clockFlow { BlockingSimuClock() }, 300)
+            }.also { println(it) }
+        }
+    }
+
+    @Test
+    fun ex2_3() {
+        runBlocking(Dispatchers.Default) {
+            measureTimedValue {
+                averageLag(clockFlow { SimuClock.newClock() }, 300)
+            }.also { println(it) }
+        }
+    }
 }
