@@ -1,5 +1,6 @@
 package fmt.kotlin.advanced
 
+import fmt.kotlin.advanced.annotation.variance.VarianceInterface
 import java.util.*
 
 
@@ -48,6 +49,7 @@ interface WriteableRack<in T> {
     val numberOf: Int
 }
 
+@VarianceInterface
 data class Rack<T>(override val capacity: Capacity, val rackId: String = UUID.randomUUID().toString()) :
     ReadableRack<T>, WriteableRack<T> {
 
