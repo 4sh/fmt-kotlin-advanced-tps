@@ -1,5 +1,9 @@
 package fmt.kotlin.advanced
 
+//
+// !!!! NE PAS MODIFIER !!!!
+//
+
 data class Tick(
     val index: Int,
     val simulatedElapsedMs: Long,
