@@ -14,7 +14,13 @@ class Tp3 {
     }
 
     class BatchSimulator(val batchIndex: Int, val simulationsCount: Int, val simulator: Simulator) {
-        suspend fun simulate(clockFlow: Flow<Tick>, collector: SimulationResultsCollector): List<Job> = TODO()
+        suspend fun simulate(clockFlow: Flow<Tick>, collector: SimulationResultsCollector) = coroutineScope {
+            (1..simulationsCount).map {
+                launch(CoroutineName("Batch${batchIndex}")) {
+                    simulator.simulate(clockFlow, collector)
+                }
+            }
+        }
     }
 
     @Test
@@ -23,8 +29,15 @@ class Tp3 {
             val simulator = StdSimulator(iterations = 20).withTimeout()
             val collector = SimulationsCountStats()
 
-            TODO()
-
+            withContext(Dispatchers.Default) {
+                (1..100).map { batchIndex ->
+                    BatchSimulator(batchIndex, simulationsCount = 10, simulator)
+                }.map { batch ->
+                    launch {
+                        batch.simulate(clockFlow { SimuClock.newClock() }, collector)
+                    }
+                }.joinAll()
+            }
             collector.printStats()
         }
     }
