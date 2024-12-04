@@ -3,7 +3,6 @@ package fmt.kotlin.advanced
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.take
 import org.junit.jupiter.api.Test
 import java.util.concurrent.atomic.AtomicInteger
@@ -12,6 +11,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.measureTimedValue
 
 class Tp2 {
@@ -53,13 +53,27 @@ class Tp2 {
         val cancelledCount = AtomicInteger()
         (1..simulations).map { index ->
             async(SimuClockContextElement(index)) {
-                clockFlow.take(20).last().lagPerSecond
-                    .also {
-                        collector.collectResult(SimulationResult(it))
+                withTimeoutOrNull(2.5.seconds) {
+                    var lag: Duration? = null
+                    try {
+                        clockFlow.take(20).collect {
+                            lag = it.lagPerSecond
+                        }
+                    } catch (e: TimeoutCancellationException) {
+                        cancelledCount.incrementAndGet()
+                    } finally {
+                        withContext(NonCancellable) {
+                            lag?.also {
+                                collector.collectResult(SimulationResult(it))
+                            }
+                        }
                     }
+                    lag
+                }
             }
         }
             .awaitAll()
+            .filterNotNull()
             .average()
             .also {
                 println("Annulés : ${cancelledCount.get()}")
