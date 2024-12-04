@@ -10,6 +10,7 @@ class Visitor(codeGenerator: CodeGenerator, private val logger: KSPLogger) : KSV
     private val generator = Generator(codeGenerator, logger)
 
     override fun visitClassDeclaration(classDeclaration: KSClassDeclaration, data: Unit) {
-        // start code generation
+        logger.warn("visitClassDeclaration")
+        generator.generateInterfaces(classDeclaration)
     }
 }
