@@ -2,6 +2,10 @@ package fmt.kotlin.advanced
 
 import kotlin.time.Duration
 
+//
+// !!!! NE PAS MODIFIER !!!!
+//
+
 data class Tick(
     /**
      * Le nombre de ticks générés par la [SimuClock] avant celui-ci.
