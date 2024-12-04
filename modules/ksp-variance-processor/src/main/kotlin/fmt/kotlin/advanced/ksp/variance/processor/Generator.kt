@@ -1,6 +1,9 @@
 package fmt.kotlin.advanced.ksp.variance.processor
 
 
+import com.google.devtools.ksp.getDeclaredFunctions
+import com.google.devtools.ksp.getDeclaredProperties
+import com.google.devtools.ksp.getVisibility
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -10,6 +13,12 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.TypeVariableName
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import com.squareup.kotlinpoet.ksp.writeTo
+import com.google.devtools.ksp.symbol.*
+import com.squareup.kotlinpoet.*
+
+import com.squareup.kotlinpoet.ksp.*
+
+private val ignoredFunctions = setOf("<init>", "toString")
 
 class Generator(private val codeGenerator: CodeGenerator, private val logger: KSPLogger) {
 
@@ -41,8 +50,9 @@ class Generator(private val codeGenerator: CodeGenerator, private val logger: KS
         classType: KSClassDeclaration,
         readable: Boolean,
     ): TypeSpec {
-        val interfaceName = readable.takeIf { it }?.let { "TmpReadable$simpleName" } ?: "TmpWriteable$simpleName"
+        val interfaceName = readable.takeIf { it }?.let { "Readable$simpleName" } ?: "Writeable$simpleName"
         logger.warn("generate $interfaceName")
+        val typeParamResolver = classType.typeParameters.toTypeParameterResolver()
         return TypeSpec.interfaceBuilder(interfaceName)
             .addTypeVariables(classType.typeParameters.map { typeParam ->
                 TypeVariableName(
@@ -50,6 +60,12 @@ class Generator(private val codeGenerator: CodeGenerator, private val logger: KS
                     variance = readable.takeIf { it }?.let { KModifier.OUT } ?: KModifier.IN)
             })
             .addOriginatingKSFile(classType.containingFile!!)
+            .addFunctions(generateFunctions(classType, typeParamResolver, readable))
+            .addProperties(generateProperties(classType, typeParamResolver))
             .build()
     }
+
+
+    private fun KSTypeReference.getTypeNames() =
+        resolve().arguments.mapNotNull { it.type?.toString() } + resolve().declaration.simpleName.asString()
 }

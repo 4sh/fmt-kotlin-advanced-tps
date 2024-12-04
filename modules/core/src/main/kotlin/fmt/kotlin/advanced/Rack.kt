@@ -25,32 +25,8 @@ infix fun Int.at(slotIndex: Int) = Position(this, slotIndex)
 
 typealias Mutable2DList<T> = MutableList<MutableList<T>>
 
-interface ReadableRack<out T> {
-    val capacity: Capacity
-
-    operator fun get(position: Position): T?
-
-    operator fun get(shelfIndex: Int): List<T?>
-
-    fun take(position: Position): T?
-
-    fun view(position: Position): T?
-
-    fun stream(): Sequence<T>
-}
-
-interface WriteableRack<in T> {
-    val capacity: Capacity
-
-    operator fun set(position: Position, bottle: T)
-
-    fun store(bottle: T, position: Position)
-
-    val numberOf: Int
-}
-
 @VarianceInterface
-data class Rack<T>(override val capacity: Capacity, val rackId: String = UUID.randomUUID().toString()) :
+data class Rack<T>(override val capacity: Capacity, override val rackId: String = UUID.randomUUID().toString()) :
     ReadableRack<T>, WriteableRack<T> {
 
     private val elements: Mutable2DList<T?> = mutableListOf<MutableList<T?>>().apply {
