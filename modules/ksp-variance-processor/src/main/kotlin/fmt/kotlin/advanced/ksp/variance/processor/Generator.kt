@@ -73,7 +73,20 @@ class Generator(private val codeGenerator: CodeGenerator, private val logger: KS
     ): List<FunSpec> {
         val classTypeArgumentName = classType.typeParameters.map { it.name.asString() }.toSet()
         return classType.getDeclaredFunctions()
-            //
+            .filter { func -> ignoredFunctions.none { func.simpleName.asString() == it } }
+            .filter { func -> func.getVisibility() == Visibility.PUBLIC }
+            .filter { func ->
+                if (readable) {
+                    func.parameters.flatMap { valueParameter ->
+                        valueParameter.type.getTypeNames()
+                    }.let {
+                        it.intersect(classTypeArgumentName).isEmpty()
+                    }
+                } else {
+                    val returnTypeNames = func.returnType?.getTypeNames() ?: listOf()
+                    returnTypeNames.intersect(classTypeArgumentName).isEmpty()
+                }
+            }
             .toList()
             .mapNotNull { func ->
                 generateFunction(func, typeParamResolver)
@@ -86,16 +99,23 @@ class Generator(private val codeGenerator: CodeGenerator, private val logger: KS
     ): FunSpec? =
         function.returnType?.let { returnType ->
             logger.warn("generate function ${function.simpleName.asString()}")
+            val modifiers = listOf(KModifier.ABSTRACT) + function.modifiers.filter { it == Modifier.OPERATOR }
+                .mapNotNull { it.toKModifier() }
 
-
-
+            FunSpec.builder(function.simpleName.asString())
+                .addModifiers(modifiers)
+                .returns(returnType.toTypeName(typeParamResolver))
+                .addParameters(function.parameters.mapNotNull { param -> generateParam(param, typeParamResolver) })
+                .build()
         }
 
     private fun generateParam(
         param: KSValueParameter,
         typeParamResolver: TypeParameterResolver
     ): ParameterSpec? = param.name?.let {
-
+        ParameterSpec.builder(
+            it.asString(), param.type.toTypeName(typeParamResolver)
+        ).build()
     }
 
     private fun generateProperties(
@@ -107,7 +127,9 @@ class Generator(private val codeGenerator: CodeGenerator, private val logger: KS
         .map { prop ->
             logger.warn("generate property ${prop.simpleName.asString()}")
 
-
+            PropertySpec.builder(prop.simpleName.asString(), prop.type.toTypeName(typeParamResolver), listOf(KModifier.ABSTRACT))
+                .mutable(prop.isMutable)
+                .build()
         }
 
     private fun KSTypeReference.getTypeNames() =
