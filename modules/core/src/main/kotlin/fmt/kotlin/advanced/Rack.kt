@@ -1,5 +1,6 @@
 package fmt.kotlin.advanced
 
+import fmt.kotlin.advanced.annotation.variance.VarianceInterface
 import java.util.*
 
 
@@ -24,7 +25,7 @@ infix fun Int.at(slotIndex: Int) = Position(this, slotIndex)
 
 typealias Mutable2DList<T> = MutableList<MutableList<T>>
 
-interface ReadableRack<out T> {
+/*interface ReadableRack<out T> {
     val capacity: Capacity
 
     operator fun get(position: Position): T?
@@ -46,9 +47,10 @@ interface WriteableRack<in T> {
     fun store(bottle: T, position: Position)
 
     val numberOf: Int
-}
+}*/
 
-data class Rack<T>(override val capacity: Capacity, val rackId: String = UUID.randomUUID().toString()) :
+@VarianceInterface
+data class Rack<T>(override val capacity: Capacity, override val rackId: String = UUID.randomUUID().toString()) :
     ReadableRack<T>, WriteableRack<T> {
 
     private val elements: MutableList<MutableList<T?>> = mutableListOf<MutableList<T?>>().apply {
