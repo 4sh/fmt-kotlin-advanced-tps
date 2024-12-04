@@ -1,11 +1,12 @@
 package fmt.kotlin.advanced
 
+import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.milliseconds
 
 interface SimuClock {
-    fun nextTick(): Tick
+    suspend fun nextTick(): Tick
 }
 
 class StdSimuClock : SimuClock {
@@ -14,11 +15,11 @@ class StdSimuClock : SimuClock {
         private val simulationPeriod = 100.milliseconds
         private val clock = Clock.System
 
-        override fun nextTick(): Tick {
+        override suspend fun nextTick(): Tick {
             if (started == null) {
                 started = clock.now()
             }
-            Thread.sleep(simulationPeriod.inWholeMilliseconds)
+            delay(simulationPeriod.inWholeMilliseconds)
             index++
             return Tick(
                 index,
