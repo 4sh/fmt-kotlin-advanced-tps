@@ -2,8 +2,11 @@ package fmt.kotlin.advanced
 
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration
 
 //
 // !!!! NE PAS MODIFIER !!!!
@@ -55,9 +58,13 @@ class SimulationsCountStats : SimulationResultsCollector {
 }
 
 class AvgLagStatsCollector : SimulationResultsCollector {
+    private val clock = Clock.System
+    private var startedAt: Instant = clock.now()
+    private var lastCollectedAt: Instant? = null
     private var count: Int = 0
     private var totalLagInMsPerSecond: Double = 0.0
 
+    val duration: Duration get() = lastCollectedAt?.let { it - startedAt!! } ?: Duration.ZERO
     val simulationCount get() = count
     val avgLagInMsPerSecond: Double get() = totalLagInMsPerSecond / count.toDouble()
 
@@ -66,9 +73,10 @@ class AvgLagStatsCollector : SimulationResultsCollector {
         delay(5)
         count++
         result.lagInMsPerSecond?.also { totalLagInMsPerSecond += it }
+        lastCollectedAt = clock.now()
     }
 
     fun printStats() {
-        println("AVG LAG: $avgLagInMsPerSecond on $simulationCount simulations")
+        println("AVG LAG: $avgLagInMsPerSecond on $simulationCount simulations computed in $duration")
     }
 }
