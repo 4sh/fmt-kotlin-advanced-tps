@@ -57,7 +57,7 @@ class Tp4 {
                             }
                         }
                     }
-                    .flattenMerge()
+                    .flattenMerge(concurrency = batchCount)
                     .collect {
                         collector.collectResult(it)
                     }
