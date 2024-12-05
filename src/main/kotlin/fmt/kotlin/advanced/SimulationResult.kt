@@ -7,6 +7,7 @@ import kotlinx.datetime.Instant
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 //
 // !!!! NE PAS MODIFIER !!!!
@@ -57,7 +58,7 @@ class SimulationsCountStats : SimulationResultsCollector {
     }
 }
 
-class AvgLagStatsCollector : SimulationResultsCollector {
+class AvgLagStatsCollector(val delay: Duration = 5.milliseconds) : SimulationResultsCollector {
     private val clock = Clock.System
     private var startedAt: Instant = clock.now()
     private var lastCollectedAt: Instant? = null
@@ -70,7 +71,7 @@ class AvgLagStatsCollector : SimulationResultsCollector {
 
     // not thread safe
     override suspend fun collectResult(result: SimulationResult) {
-        delay(5)
+        delay(delay)
         count++
         result.lagInMsPerSecond?.also { totalLagInMsPerSecond += it }
         lastCollectedAt = clock.now()
