@@ -6,8 +6,6 @@ import fmt.kotlin.advanced.Region.BORDEAUX
 import io.kotest.assertions.throwables.shouldThrowMessage
 import org.junit.jupiter.api.Test
 
-// tp7-step2
-
 class RackTest {
 
     @Test
