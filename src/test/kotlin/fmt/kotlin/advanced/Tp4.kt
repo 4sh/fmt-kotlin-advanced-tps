@@ -1,15 +1,11 @@
 package fmt.kotlin.advanced
 
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class Tp4 {
     fun clockFlow(simuClock: () -> SimuClock) = flow {
@@ -93,12 +89,13 @@ class Tp4 {
     }
 
     class ObservableAvgLagStatsCollector(val avgCollector: AvgLagStatsCollector) : SimulationResultsCollector {
-        private val avgMutableFlow = TODO()
-        val avgFlow: StateFlow<Duration> = TODO()
-        val avgLagPerSecond: Duration /* ???? */ = TODO()
+        private val avgMutableFlow = MutableStateFlow(0.milliseconds)
+        val avgFlow: StateFlow<Duration> = avgMutableFlow.asStateFlow()
+        val avgLagPerSecond: Duration = avgFlow.value
 
         override suspend fun collectResult(result: SimulationResult) {
-            TODO()
+            avgCollector.collectResult(result)
+            avgMutableFlow.emit(avgCollector.avgLagPerSecond)
         }
 
         fun printStats() {
@@ -114,7 +111,10 @@ class Tp4 {
 
         runBlocking(Dispatchers.Default) {
             val printAvgJob = launch(CoroutineName("print_avg_job")) {
-                TODO()
+                avgCollector.avgFlow.buffer().drop(1).conflate().collect {
+                    println("AVG: $it")
+                    delay(1.seconds)
+                }
             }
             FlowBasedSimulationManager(
                 batchCount = 100,
