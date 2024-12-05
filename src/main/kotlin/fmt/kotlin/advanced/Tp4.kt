@@ -1,8 +1,9 @@
 package fmt.kotlin.advanced
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 
 class Tp4 {
@@ -45,7 +46,19 @@ class Tp4 {
         override suspend fun simulate(collector: SimulationResultsCollector) {
             coroutineScope {
                 (1..batchCount)
-                    TODO()
+                    .asFlow()
+                    .map {
+                        BatchSimulator(it, simulationPerBatch, simulator)
+                            .withThreshold()
+                    }
+                    .map { batch ->
+                        channelFlow {
+                            batch.simulate(clockFlow) {
+                                channel.send(it)
+                            }
+                        }
+                    }
+                    .flattenMerge()
                     .collect {
                         collector.collectResult(it)
                     }
@@ -60,7 +73,16 @@ class Tp4 {
         val avgCollector = AvgLagStatsCollector()
 
         runBlocking(Dispatchers.Default) {
-            TODO()
+            FlowBasedSimulationManager(
+                batchCount = 100,
+                simulationPerBatch = 10,
+                simulator = simulator,
+                clockFlow = clockFlow { SimuClock.newClock() }
+            )
+                .simulate {
+                    collector.collectResult(it)
+                    avgCollector.collectResult(it)
+                }
             collector.printStats()
             avgCollector.printStats()
         }
