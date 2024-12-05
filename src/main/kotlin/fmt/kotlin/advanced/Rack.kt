@@ -22,63 +22,62 @@ infix fun Int.at(slotIndex: Int) = Position(this, slotIndex)
 
 typealias Mutable2DList<T> = MutableList<MutableList<T>>
 
+data class Rack<T>(val capacity: Capacity, val rackId: String = UUID.randomUUID().toString()) {
 
-data class WineRack(val capacity: Capacity, val rackId: String = UUID.randomUUID().toString()) {
-
-    private val bottles: Mutable2DList<Bottle?> = mutableListOf<MutableList<Bottle?>>().apply {
+    private val elements: Mutable2DList<T?> = mutableListOf<MutableList<T?>>().apply {
         repeat(capacity.nbOfShelves) {
             add(MutableList(capacity.maxSlotByShelf) { null })
         }
     }
 
-    operator fun get(position: Position) = bottles[position]
+    operator fun get(position: Position) = elements[position]
 
-    operator fun get(shelfIndex: Int): List<Bottle?> = bottles[shelfIndex].toList()
+    operator fun get(shelfIndex: Int): List<T?> = elements[shelfIndex].toList()
 
-    operator fun set(position: Position, bottle: Bottle) {
-        storeBottle(bottle, position)
+    operator fun set(position: Position, element: T) {
+        store(element, position)
     }
 
-    fun storeBottle(bottle: Bottle, position: Position) {
+    fun store(element: T, position: Position) {
         check(position <= capacity) { "wine rack position $position is out of capacity $capacity" }
-        check(bottles[position] == null) { "the slot at $position is not free" }
+        check(elements[position] == null) { "the slot at $position is not free" }
 
-        bottles[position] = bottle
+        elements[position] = element
     }
 
-    fun takeBottle(position: Position): Bottle? =
-        viewBottle(position).also {
-            bottles[position] = null
+    fun take(position: Position): T? =
+        view(position).also {
+            elements[position] = null
         }
 
-    fun viewBottle(position: Position): Bottle? = bottles[position]
+    fun view(position: Position): T? = elements[position]
 
-    val numberOfBottles: Int
-        get() = bottles.sumOf { it.filterNotNull().size }
+    val numberOf: Int
+        get() = elements.sumOf { it.filterNotNull().size }
 
-    fun streamBottles(): Sequence<Bottle> = bottles.asSequence().flatten().filterNotNull()
+    fun stream(): Sequence<T> = elements.asSequence().flatten().filterNotNull()
 
     override fun toString(): String {
         val maxLengthBySlotIndex: Map<Int, Int> = (0 until capacity.maxSlotByShelf)
             .associateWith { slotIndex ->
                 (0 until capacity.nbOfShelves)
-                    .maxOf { shelfIndex -> (bottles[shelfIndex at slotIndex].toString() ?: EMPTY).length + 5 }
+                    .maxOf { shelfIndex -> (elements[shelfIndex at slotIndex].toString() ?: EMPTY).length + 5 }
             }
-        return bottles.joinToString("\n") { shelf ->
+        return elements.joinToString("\n") { shelf ->
             shelf
-                .mapIndexed { index, bottle ->
-                    (bottle?.let { "$it" } ?: EMPTY)
+                .mapIndexed { index, element ->
+                    (element?.let { "$it" } ?: EMPTY)
                         .padEnd(maxLengthBySlotIndex.getValue(index))
                 }
                 .joinToString(" / ")
         } + "\n"
     }
 
-    private operator fun Mutable2DList<Bottle?>.get(position: Position) =
+    private operator fun Mutable2DList<T?>.get(position: Position) =
         this[position.shelfIndex][position.slotIndex]
 
-    private operator fun Mutable2DList<Bottle?>.set(position: Position, bottle: Bottle?) {
-        this[position.shelfIndex][position.slotIndex] = bottle
+    private operator fun Mutable2DList<T?>.set(position: Position, element: T?) {
+        this[position.shelfIndex][position.slotIndex] = element
 
     }
 }
