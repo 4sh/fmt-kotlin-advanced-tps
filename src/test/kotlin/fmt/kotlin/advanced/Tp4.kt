@@ -1,10 +1,9 @@
 package fmt.kotlin.advanced
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 
@@ -45,10 +44,22 @@ class Tp4 {
         val clockFlow: Flow<Tick>
     ) : SimulationManager {
 
+        @OptIn(ExperimentalCoroutinesApi::class)
         override suspend fun simulate(collector: SimulationResultsCollector) {
             coroutineScope {
                 (1..batchCount)
-                TODO()
+                    .asFlow()
+                    .map {
+                        BatchSimulator(it, simulationPerBatch, simulator)
+                            .withThreshold()
+                    }
+                    .flatMapMerge(concurrency = simulationPerBatch) { batchSimulator ->
+                        channelFlow {
+                            batchSimulator.simulate(clockFlow) {
+                                send(it)
+                            }
+                        }
+                    }
                     .collect {
                         collector.collectResult(it)
                     }
@@ -63,7 +74,15 @@ class Tp4 {
         val avgCollector = AvgLagStatsCollector()
 
         runBlocking(Dispatchers.Default) {
-            TODO()
+            FlowBasedSimulationManager(
+                batchCount = 100,
+                simulationPerBatch = 10,
+                simulator = simulator,
+                clockFlow = clockFlow { SimuClock.newClock() },
+            ).simulate {
+                collector.collectResult(it)
+                avgCollector.collectResult(it)
+            }
             collector.printStats()
             avgCollector.printStats()
         }
