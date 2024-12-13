@@ -2,6 +2,8 @@ package fmt.kotlin.advanced
 
 import java.util.*
 
+// tp7-step2
+
 private const val EMPTY = "empty"
 
 data class Capacity(val nbOfShelves: Int, val maxSlotByShelf: Int)
@@ -25,7 +27,7 @@ data class WineRack(val capacity: Capacity, val rackId: String = UUID.randomUUID
 
     private val bottles: Mutable2DList<Bottle?> = mutableListOf<MutableList<Bottle?>>().apply {
         repeat(capacity.nbOfShelves) {
-            add(arrayOfNulls<Bottle>(capacity.maxSlotByShelf).toMutableList())
+            add(MutableList(capacity.maxSlotByShelf) { null })
         }
     }
 
@@ -60,12 +62,12 @@ data class WineRack(val capacity: Capacity, val rackId: String = UUID.randomUUID
         val maxLengthBySlotIndex: Map<Int, Int> = (0 until capacity.maxSlotByShelf)
             .associateWith { slotIndex ->
                 (0 until capacity.nbOfShelves)
-                    .maxOf { shelfIndex -> (bottles[shelfIndex at slotIndex]?.name ?: EMPTY).length + 5 }
+                    .maxOf { shelfIndex -> (bottles[shelfIndex at slotIndex].toString() ?: EMPTY).length + 5 }
             }
         return bottles.joinToString("\n") { shelf ->
             shelf
                 .mapIndexed { index, bottle ->
-                    (bottle?.let { "${it.name} ${it.year}" } ?: EMPTY)
+                    (bottle?.let { "$it" } ?: EMPTY)
                         .padEnd(maxLengthBySlotIndex.getValue(index))
                 }
                 .joinToString(" / ")
