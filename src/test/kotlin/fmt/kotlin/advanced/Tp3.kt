@@ -4,6 +4,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 
 class Tp3 {
     fun clockFlow(simuClock: () -> SimuClock) = flow {
@@ -14,14 +16,33 @@ class Tp3 {
     }
 
     class BatchSimulator(val batchIndex: Int, val simulationsCount: Int, val simulator: Simulator) {
-        suspend fun simulate(clockFlow: Flow<Tick>, collector: SimulationResultsCollector) = coroutineScope {
+        suspend fun simulate(clockFlow: Flow<Tick>, collector: SimulationResultsCollector): Unit = coroutineScope {
+            TODO()
+        }
+
+        fun simulateIn(clockFlow: Flow<Tick>, scope: CoroutineScope, collector: SimulationResultsCollector) {
             (1..simulationsCount).map {
-                launch(CoroutineName("Batch${batchIndex}")) {
+                /* TODO */launch(CoroutineName("Batch${batchIndex}")) {
                     simulator.simulate(clockFlow, collector)
                 }
             }
         }
     }
+
+    class ThresholdBatchSimulatorDecorator(
+        val threshold: Duration,
+        val batchSimulator: BatchSimulator,
+    ) {
+        suspend fun simulate(clockFlow: Flow<Tick>, collector: SimulationResultsCollector): Unit = coroutineScope {
+            TODO()
+        }
+
+        fun simulateIn(clockFlow: Flow<Tick>, scope: CoroutineScope, collector: SimulationResultsCollector) {
+           TODO()
+        }
+    }
+    fun BatchSimulator.withThreshold(threshold: Duration = 200.milliseconds) =
+        ThresholdBatchSimulatorDecorator(threshold, this)
 
     @Test
     fun ex1() {
@@ -38,6 +59,18 @@ class Tp3 {
                     }
                 }.joinAll()
             }
+            collector.printStats()
+        }
+    }
+
+    @Test
+    fun ex2() {
+        runBlocking {
+            val simulator = StdSimulator(iterations = 20).withTimeout()
+            val collector = SimulationsCountStats()
+
+           TODO()
+
             collector.printStats()
         }
     }
