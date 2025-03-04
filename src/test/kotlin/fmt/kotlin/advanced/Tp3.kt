@@ -1,6 +1,7 @@
 package fmt.kotlin.advanced
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
@@ -89,6 +90,38 @@ class Tp3 {
                 }.joinAll()
             }
             collector.printStats()
+        }
+    }
+
+    @Test
+    fun ex3() {
+        runBlocking {
+            val simulator = StdSimulator(iterations = 20).withTimeout()
+            val collector = SimulationsCountStats()
+            val avgCollector = AvgLagStatsCollector()
+            val channel = Channel<SimulationResult>()
+
+            val avgCollectorJob: Job = TODO()
+
+            withContext(Dispatchers.Default) {
+                (1..100).map { batchIndex ->
+                    BatchSimulator(batchIndex, simulationsCount = 10, simulator)
+                        .withThreshold()
+                }.map { batch ->
+                    launch {
+                        batch.simulate(clockFlow { SimuClock.newClock() }) {
+                            TODO()
+                        }
+                    }
+                }.joinAll()
+            }
+            while(!channel.isEmpty) {
+                delay(5)
+            }
+            channel.close()
+            avgCollectorJob.join()
+            collector.printStats()
+            avgCollector.printStats()
         }
     }
 }
