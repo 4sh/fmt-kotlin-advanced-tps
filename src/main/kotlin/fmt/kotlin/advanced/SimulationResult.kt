@@ -59,7 +59,7 @@ class SimulationsCountStats : SimulationResultsCollector {
     }
 }
 
-class AvgLagStatsCollector : SimulationResultsCollector {
+class AvgLagStatsCollector(val delay: Duration = 5.milliseconds) : SimulationResultsCollector {
     private val clock = Clock.System
     private var startedAt: Instant = clock.now()
     private var lastCollectedAt: Instant? = null
@@ -72,7 +72,7 @@ class AvgLagStatsCollector : SimulationResultsCollector {
 
     // not thread safe
     override suspend fun collectResult(result: SimulationResult) {
-        delay(5.milliseconds)
+        delay(delay)
         count++
         result.lagPerSecond?.also { totalLagPerSecond += it }
         lastCollectedAt = clock.now()
