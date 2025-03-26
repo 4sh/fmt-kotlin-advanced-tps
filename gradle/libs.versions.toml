@@ -1,0 +1,27 @@
+# Version catalog is a central place for you to declare and version dependencies
+# https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
+# https://docs.gradle.org/current/userguide/platforms.html#sub::toml-dependencies-format
+
+[versions]
+kotlin = "2.1.20"
+kotlinxDatetime = "0.6.2"
+kotlinxSerializationJSON = "1.8.0"
+kotlinxCoroutines = "1.10.1"
+ktor = "3.1.1"
+mongo = "5.3.1"
+
+[libraries]
+kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlinxDatetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinxSerialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJSON" }
+kotlinxCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+mongodb-driver-kotlin-coroutine = { group = "org.mongodb", name = "mongodb-driver-kotlin-coroutine", version.ref = "mongo"}
+mongodb-driver-kotlin-reactivestreams = { group = "org.mongodb", name = "mongodb-driver-kotlin-reactivestreams", version.ref = "mongo"}
+
+# Libraries can be bundled together for easier import
+[bundles]
+kotlinxEcosystem = ["kotlinxDatetime", "kotlinxSerialization", "kotlinxCoroutines"]
+
+[plugins]
+kotlinPluginSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ktor = { id = "io.ktor.plugin", version.ref = "ktor" }

@@ -1,0 +1,4 @@
+### Start match
+POST http://localhost:8080/match?nbOfBets=1000000
+
+###

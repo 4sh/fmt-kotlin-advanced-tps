@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  fmt-kotlin-mongo:
+    image: mongo:8.0
+    container_name: fmt-kotlin-mongo
+    ports:
+      - "27117:27017"
+    healthcheck:
+      test: |
+        echo "db.getSiblingDB('bet').getCollection('rugbyBet').createIndex({matchId: 1, status: 1})" | mongosh --port 27017 --quiet
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      start_interval: 1s
+      retries: 30
+    volumes:
+      - fmt-kotlin-mongo-data:/data/db
+
+volumes:
+  fmt-kotlin-mongo-data:
+    driver: local
