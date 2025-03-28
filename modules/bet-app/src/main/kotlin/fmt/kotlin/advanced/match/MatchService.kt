@@ -22,6 +22,8 @@ class MatchService(
         measureTime {
             logger.info("[MATCH] start match")
             betGenerator.generate(matchId)
+                // TODO step 2
+                // use 100 coroutines to improve performance
                 .take(nbBets)
                 .map { bet ->
                     rubyBetRepository.storeBet(bet)
