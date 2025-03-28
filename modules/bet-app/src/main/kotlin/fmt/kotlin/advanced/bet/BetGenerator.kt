@@ -9,12 +9,9 @@ import kotlin.random.Random
 class BetGenerator {
     fun generate(matchId: String): Flow<RugbyBet> = flow {
         while (true) {
-            /**
-             * TODO step 1
-             * generate bets
-             */
+            val rugbyBet = generateRugbyBet(matchId)
+            emit(rugbyBet)
         }
-
     }
 
     private fun generateRugbyBet(matchId: String): RugbyBet {
