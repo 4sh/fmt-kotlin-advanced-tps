@@ -36,16 +36,16 @@ fun Application.configureRouting() {
         post("/wallet/{userId}/add/{value}/for-bet/{{betId}}") {
 
             when ((1..1000).random()) {
-//                1 -> {
-//                    logger.info("RESPOND ERROR")
-//                    error("unavailable")
-//                }
-//
-//                2 -> {
-//                    logger.info("RESPOND AFTER 5s")
-//                    delay(500)
-//                    call.respondText { "OK" }
-//                }
+                1 -> {
+                    logger.info("RESPOND ERROR")
+                    error("unavailable")
+                }
+
+                2 -> {
+                    logger.info("RESPOND AFTER 5s")
+                    delay(500)
+                    call.respondText { "OK" }
+                }
 
                 else -> {
                     logger.info("RESPOND DIRECT")

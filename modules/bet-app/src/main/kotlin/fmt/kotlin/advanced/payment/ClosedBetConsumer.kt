@@ -67,6 +67,10 @@ class ClosedBetConsumer(
         logger.info("[CONSUMER-$index] Start consumer job")
         launch {
             channel.receiveAsFlow().collect { bet ->
+                // TODO step 5
+                // handle error and timeout request
+                // increment error and timeout counters
+
                 val url = bet.buildPaymentUrl()
                 client.post(url)
 
@@ -102,6 +106,8 @@ class ClosedBetConsumer(
     private fun CoroutineScope.logCounters(matchId: String) {
         logger.info("#####################################################################")
         logger.info("[MATCH] $matchId COUNTER OK ${coroutineContext[Counters]?.ok?.get()}")
+        logger.info("[MATCH] $matchId COUNTER ERROR ${coroutineContext[Counters]?.error?.get()}")
+        logger.info("[MATCH] $matchId COUNTER TIMEOUT ${coroutineContext[Counters]?.timeout?.get()}")
     }
 }
 

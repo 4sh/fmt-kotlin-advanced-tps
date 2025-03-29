@@ -5,6 +5,8 @@ import kotlin.coroutines.CoroutineContext
 
 data class Counters(
     val ok: AtomicInteger = AtomicInteger(0),
+    val error: AtomicInteger = AtomicInteger(0),
+    val timeout: AtomicInteger = AtomicInteger(0)
 ) : CoroutineContext.Element {
     override val key = Key
 
