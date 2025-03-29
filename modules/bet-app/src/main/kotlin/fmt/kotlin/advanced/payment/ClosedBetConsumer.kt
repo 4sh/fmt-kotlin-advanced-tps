@@ -67,17 +67,24 @@ class ClosedBetConsumer(
         logger.info("[CONSUMER-$index] Start consumer job")
         launch {
             channel.receiveAsFlow().collect { bet ->
-                // TODO step 5
-                // handle error and timeout request
-                // increment error and timeout counters
+                try {
+                    withTimeoutOrNull(250) {
+                        val url = bet.buildPaymentUrl()
+                        val httpResponse = client.post(url)
+                        if (httpResponse.status.isSuccess()) {
+                            bet.copy(paidInstant = Clock.System.now()).also {
+                                rubyBetRepository.setBetAsPaid(checkNotNull(it.id), it.paidInstant!!)
+                            }
+                            coroutineContext[Counters]?.ok?.incrementAndGet()
+                        } else {
+                            coroutineContext[Counters]?.error?.incrementAndGet()
+                        }
+                        true
+                    } ?: coroutineContext[Counters]?.timeout?.incrementAndGet()
 
-                val url = bet.buildPaymentUrl()
-                client.post(url)
-
-                bet.copy(paidInstant = Clock.System.now()).also {
-                    rubyBetRepository.setBetAsPaid(checkNotNull(it.id), it.paidInstant!!)
+                } catch (e: Exception) {
+                    coroutineContext[Counters]?.error?.incrementAndGet()
                 }
-                coroutineContext[Counters]?.ok?.incrementAndGet()
             }
         }
     }
