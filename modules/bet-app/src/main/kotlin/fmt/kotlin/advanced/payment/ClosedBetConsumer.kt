@@ -24,6 +24,7 @@ class ClosedBetConsumer(
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
 
     private val closedBetChannel = Channel<RugbyBet>()
+    private val retryBetChannel = Channel<RugbyBet>(capacity = Channel.UNLIMITED)
 
     private val client = HttpClient(Apache) {
         install(ContentNegotiation) {
@@ -50,6 +51,14 @@ class ClosedBetConsumer(
                     closedBetChannel.send(it)
                 }
 
+            // stop current scope to stop all attached coroutines
+            logger.info("[PAYMENT-CONSUMER] wait consume retry for match $matchId")
+            delay(250)
+            while (channels.map { it.isEmpty }.any { !it } || !retryBetChannel.isEmpty) {
+                logger.info("[PAYMENT-CONSUMER] wait consume retry for match $matchId")
+                delay(250)
+            }
+
             logger.info("[PAYMENT-CONSUMER] stop consumer for $matchId")
             logCounters(matchId)
             scopes.remove(matchId)
@@ -62,6 +71,10 @@ class ClosedBetConsumer(
         }
         // start fan out job from closed bets channel
         scope.launchFanOutJob(closedBetChannel, channels)
+
+        // TODO step 7
+        // start fan out job to process retryBetChannel
+
         // start supervisor job
         scope.launchSupervisorJob(matchId)
     }
@@ -84,12 +97,20 @@ class ClosedBetConsumer(
                             coroutineContext[Counters]?.ok?.incrementAndGet()
                         } else {
                             coroutineContext[Counters]?.error?.incrementAndGet()
+                            // TODO step 7
+                            // retry bet
                         }
                         true
-                    } ?: coroutineContext[Counters]?.timeout?.incrementAndGet()
+                    } ?: run {
+                        coroutineContext[Counters]?.timeout?.incrementAndGet()
+                        // TODO step 7
+                        // retry bet
+                    }
 
                 } catch (e: Exception) {
                     coroutineContext[Counters]?.error?.incrementAndGet()
+                    // TODO step 7
+                    // retry bet
                 }
             }
         }
