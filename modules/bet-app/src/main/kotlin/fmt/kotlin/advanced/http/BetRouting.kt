@@ -17,7 +17,7 @@ fun Application.configureRouting(matchService: MatchService) {
         post("/match/{id}/close") {
             val matchId = call.pathParameters["id"]
             if (matchId != null) {
-                matchService.closeMatch(this@configureRouting, matchId)
+                matchService.closeMatch(matchId)
                 call.response.status(HttpStatusCode.OK)
             }
         }

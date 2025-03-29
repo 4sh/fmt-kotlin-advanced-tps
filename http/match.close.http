@@ -1,5 +1,5 @@
 ### Close match
-@id = 87a66dfd-02bd-4290-9fd4-26ed620e0dac
+@id = dffd1e30-de41-4a6a-b611-6ba6504aad51
 POST http://localhost:8080/match/{{id}}/close
 
 ###

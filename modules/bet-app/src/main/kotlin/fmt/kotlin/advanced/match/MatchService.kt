@@ -1,7 +1,6 @@
 package fmt.kotlin.advanced.match
 
 import fmt.kotlin.advanced.payment.ClosedBetConsumer
-import kotlinx.coroutines.CoroutineScope
 import fmt.kotlin.advanced.bet.BetGenerator
 import fmt.kotlin.advanced.bet.BetStatus
 import kotlinx.coroutines.Dispatchers
@@ -47,9 +46,9 @@ class MatchService(
         return matchId
     }
 
-    suspend fun closeMatch(scope: CoroutineScope, matchId: String) {
+    suspend fun closeMatch(matchId: String) {
         rubyBetRepository.closeMatch(matchId)
-        closedBetConsumer.launchFor(scope, matchId)
+        closedBetConsumer.launchFor(matchId)
     }
 
     suspend fun isFullyPaid(matchId: String) =
