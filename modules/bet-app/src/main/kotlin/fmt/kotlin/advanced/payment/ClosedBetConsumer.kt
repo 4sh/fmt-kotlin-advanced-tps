@@ -71,10 +71,8 @@ class ClosedBetConsumer(
         }
         // start fan out job from closed bets channel
         scope.launchFanOutJob(closedBetChannel, channels)
-
-        // TODO step 7
-        // start fan out job to process retryBetChannel
-
+        // start fan out job from retry bets channel
+        scope.launchFanOutJob(retryBetChannel, channels)
         // start supervisor job
         scope.launchSupervisorJob(matchId)
     }
@@ -97,20 +95,16 @@ class ClosedBetConsumer(
                             coroutineContext[Counters]?.ok?.incrementAndGet()
                         } else {
                             coroutineContext[Counters]?.error?.incrementAndGet()
-                            // TODO step 7
-                            // retry bet
+                            retryBetChannel.send(bet)
                         }
                         true
                     } ?: run {
                         coroutineContext[Counters]?.timeout?.incrementAndGet()
-                        // TODO step 7
-                        // retry bet
+                        retryBetChannel.send(bet)
                     }
-
                 } catch (e: Exception) {
                     coroutineContext[Counters]?.error?.incrementAndGet()
-                    // TODO step 7
-                    // retry bet
+                    retryBetChannel.send(bet)
                 }
             }
         }
