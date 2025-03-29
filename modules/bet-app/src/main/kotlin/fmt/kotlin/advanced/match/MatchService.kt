@@ -1,9 +1,9 @@
 package fmt.kotlin.advanced.match
 
 import fmt.kotlin.advanced.bet.BetGenerator
-import kotlinx.coroutines.flow.collectIndexed
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.util.*
@@ -22,12 +22,17 @@ class MatchService(
         measureTime {
             logger.info("[MATCH] start match")
             betGenerator.generate(matchId)
-                // TODO step 2
-                // use 100 coroutines to improve performance
                 .take(nbBets)
                 .map { bet ->
-                    rubyBetRepository.storeBet(bet)
+                    channelFlow {
+                        launch {
+                            rubyBetRepository.storeBet(bet)
+                            send(bet)
+                        }
+                    }
                 }
+                .flattenMerge(100)
+                .flowOn(Dispatchers.Default)
                 .collectIndexed { i, _ ->
                     if (i % 10_000 == 0) {
                         logger.info("[MATCH] stored bet : $i")
