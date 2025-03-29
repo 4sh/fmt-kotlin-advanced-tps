@@ -36,11 +36,10 @@ class ClosedBetConsumer(
     fun launchFor(matchId: String, nbOfCollectors: Int = 10) {
         logger.info("[PAYMENT-CONSUMER] start consumer for $matchId")
 
-        // TODO step 6
-        // use scopes map to init store and store it by match id
-        // before,cancel it already exists
-
-        val scope =
+        if (scopes.containsKey(matchId)) {
+            scopes.getValue(matchId).cancel()
+        }
+        val scope = scopes.getOrPut(matchId) { CoroutineScope(Dispatchers.IO + Counters()) }
 
         val channels = List(nbOfCollectors) { Channel<RugbyBet>() }
 
@@ -126,8 +125,7 @@ class ClosedBetConsumer(
 
     fun stopClose(matchId: String) {
         logger.info("[MATCH] $matchId cancel scope ${scopes[matchId]}")
-        // TODO step 6
-        // cancel the scope
+        scopes[matchId]?.cancel()
     }
 }
 
