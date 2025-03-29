@@ -36,7 +36,9 @@ class MongoRugbyBetRepository(database: CoroutineDatabase, private val clock: Cl
                 RugbyBet::matchId eq matchId,
                 RugbyBet::status eq status
             )
-        ).toFlow()
+        )
+        // TODO step 3
+        // async mongo driver allows using a cursor as a flow
     }
 
     suspend fun closeMatch(matchId: String) {

@@ -3,6 +3,7 @@ package fmt.kotlin.advanced.http
 import fmt.kotlin.advanced.bet.BetGenerator
 import fmt.kotlin.advanced.match.MatchService
 import fmt.kotlin.advanced.match.MongoRugbyBetRepository
+import fmt.kotlin.advanced.payment.ClosedBetConsumer
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -33,7 +34,8 @@ fun Application.configureModule() {
     val database = MONGO_CONNECTION.initKMongo()
     val rugbyBetRepo = MongoRugbyBetRepository(database, clock)
     val betGenerator = BetGenerator()
-    val matchService = MatchService(betGenerator, rugbyBetRepo)
+    val closedBetConsumer = ClosedBetConsumer(rugbyBetRepo)
+    val matchService = MatchService(betGenerator, rugbyBetRepo, closedBetConsumer)
 
     install(ContentNegotiation) {
         json()

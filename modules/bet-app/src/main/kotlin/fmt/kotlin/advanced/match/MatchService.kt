@@ -1,6 +1,9 @@
 package fmt.kotlin.advanced.match
 
+import fmt.kotlin.advanced.payment.ClosedBetConsumer
+import kotlinx.coroutines.CoroutineScope
 import fmt.kotlin.advanced.bet.BetGenerator
+import fmt.kotlin.advanced.bet.BetStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -12,6 +15,7 @@ import kotlin.time.measureTime
 class MatchService(
     private val betGenerator: BetGenerator,
     private val rubyBetRepository: MongoRugbyBetRepository,
+    private val closedBetConsumer: ClosedBetConsumer,
 ) {
 
     private val logger: Logger = LoggerFactory.getLogger(this::class.java)
@@ -42,4 +46,14 @@ class MatchService(
         }.also { logger.info("[MATCH] took ${it.inWholeMilliseconds} ms") }
         return matchId
     }
+
+    suspend fun closeMatch(scope: CoroutineScope, matchId: String) {
+        rubyBetRepository.closeMatch(matchId)
+        closedBetConsumer.launchFor(scope, matchId)
+    }
+
+    suspend fun isFullyPaid(matchId: String) =
+        rubyBetRepository.getBetsForMatch(matchId, BetStatus.CLOSE)
+            .firstOrNull() == null
+
 }

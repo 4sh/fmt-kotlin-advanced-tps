@@ -1,0 +1,5 @@
+### Close match
+@id = 24a41753-842e-4552-a9bc-8c5b4cf61861
+GET http://localhost:8080/match/{{id}}/is-fully-paid
+
+###
