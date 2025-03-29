@@ -30,15 +30,13 @@ class MongoRugbyBetRepository(database: CoroutineDatabase, private val clock: Cl
         )
     }
 
-     fun getBetsForMatch(matchId: String, status: BetStatus): Flow<RugbyBet> {
+    fun getBetsForMatch(matchId: String, status: BetStatus): Flow<RugbyBet> {
         return collection.find(
             and(
                 RugbyBet::matchId eq matchId,
                 RugbyBet::status eq status
             )
-        )
-        // TODO step 3
-        // async mongo driver allows using a cursor as a flow
+        ).toFlow()
     }
 
     suspend fun closeMatch(matchId: String) {

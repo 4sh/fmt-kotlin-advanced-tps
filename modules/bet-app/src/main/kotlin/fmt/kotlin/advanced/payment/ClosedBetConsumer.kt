@@ -1,5 +1,6 @@
 package fmt.kotlin.advanced.payment
 
+import fmt.kotlin.advanced.bet.BetStatus
 import fmt.kotlin.advanced.bet.RugbyBet
 import fmt.kotlin.advanced.match.MongoRugbyBetRepository
 import io.ktor.client.*
@@ -9,6 +10,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import org.slf4j.Logger
@@ -30,8 +32,13 @@ class ClosedBetConsumer(
         logger.info("[PAYMENT-CONSUMER] start consumer for $matchId")
 
         scope.launch {
-            // fetch closed bets as a flow (to avoid use ram) from the database and send them to the wallet app
-            // TODO step 3
+            rubyBetRepository.getBetsForMatch(matchId, BetStatus.CLOSE)
+                .collectIndexed { i, bet ->
+                    sendPayment(bet)
+                    if (i % 10_000 == 0) {
+                        logger.info("[PAYMENT-CONSUMER] paid bets : $i")
+                    }
+                }
         }
     }
 
