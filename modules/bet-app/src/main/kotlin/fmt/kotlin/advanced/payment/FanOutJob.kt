@@ -10,15 +10,21 @@ import org.slf4j.LoggerFactory
 
 private val logger: Logger = LoggerFactory.getLogger("FanOutJob")
 
-// TODO step 4
-// collect source channel to distribute each bet on different target channels (one after one)
-
 fun CoroutineScope.launchFanOutJob(
     source: Channel<RugbyBet>,
     targets: List<Channel<RugbyBet>>,
 ) {
     logger.info("[FAN-OUT] Start fan-out job")
     launch {
-
+        var nextChannel = 0
+        source.receiveAsFlow()
+            .collect { bet ->
+                targets[nextChannel++].send(bet)
+                nextChannel = if (nextChannel >= targets.size) {
+                    0
+                } else {
+                    nextChannel
+                }
+            }
     }
 }

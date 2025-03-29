@@ -11,6 +11,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.datetime.Clock
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -32,24 +33,27 @@ class ClosedBetConsumer(
     fun launchFor(matchId: String, nbOfCollectors: Int = 10) {
         logger.info("[PAYMENT-CONSUMER] start consumer for $matchId")
 
-        // TODO step 4
-        // create scope to launch coroutines
-        // init channels to distribute bets
 
+        val scope = CoroutineScope(Dispatchers.Default + Counters())
 
-        // TODO step 4
-        // start coroutine to get closed bets and send them to the closedBetChannel
-        // after collect, log counters and stop scope
-        rubyBetRepository.getBetsForMatch(matchId, BetStatus.CLOSE)
-            .collect {
+        val channels = List(nbOfCollectors) { Channel<RugbyBet>() }
 
-            }
+        scope.launch {
+            // fetch closed bets to send them to closed bert channel
+            rubyBetRepository.getBetsForMatch(matchId, BetStatus.CLOSE)
+                .collect {
+                    closedBetChannel.send(it)
+                }
 
-        // TODO step 4
-        // start closed bet consumer job for each channel
-        scope.launchClosedBetConsumerJob(index, channel)
+            logger.info("[PAYMENT-CONSUMER] stop consumer for $matchId")
+            logCounters(matchId)
+            scope.cancel()
+        }
 
-        // TODO step 4
+        // start closed bet consumer job
+        channels.forEachIndexed { index, channel ->
+            scope.launchClosedBetConsumerJob(index, channel)
+        }
         // start fan out job from closed bets channel
         scope.launchFanOutJob(closedBetChannel, channels)
         // start supervisor job
@@ -61,14 +65,16 @@ class ClosedBetConsumer(
         channel: Channel<RugbyBet>,
     ) {
         logger.info("[CONSUMER-$index] Start consumer job")
-        // TODO step 4
-        // start coroutine and process channel as flow with receiveAsFlow
-        // increment a counter from coroutine context to count correct request
+        launch {
+            channel.receiveAsFlow().collect { bet ->
+                val url = bet.buildPaymentUrl()
+                client.post(url)
 
-        val url = bet.buildPaymentUrl()
-        client.post(url)
-        bet.copy(paidInstant = Clock.System.now()).also {
-            rubyBetRepository.setBetAsPaid(checkNotNull(it.id), it.paidInstant!!)
+                bet.copy(paidInstant = Clock.System.now()).also {
+                    rubyBetRepository.setBetAsPaid(checkNotNull(it.id), it.paidInstant!!)
+                }
+                coroutineContext[Counters]?.ok?.incrementAndGet()
+            }
         }
     }
 
