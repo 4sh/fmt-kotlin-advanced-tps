@@ -51,6 +51,10 @@ class MatchService(
         closedBetConsumer.launchFor(matchId)
     }
 
+    fun stopClose(matchId: String) {
+        closedBetConsumer.stopClose(matchId)
+    }
+
     suspend fun isFullyPaid(matchId: String) =
         rubyBetRepository.getBetsForMatch(matchId, BetStatus.CLOSE)
             .firstOrNull() == null

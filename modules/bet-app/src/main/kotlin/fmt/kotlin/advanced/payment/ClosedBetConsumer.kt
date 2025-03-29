@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.datetime.Clock
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.concurrent.ConcurrentHashMap
 
 class ClosedBetConsumer(
     private val rubyBetRepository: MongoRugbyBetRepository,
@@ -30,11 +31,16 @@ class ClosedBetConsumer(
         }
     }
 
+    private val scopes = ConcurrentHashMap<String, CoroutineScope>()
+
     fun launchFor(matchId: String, nbOfCollectors: Int = 10) {
         logger.info("[PAYMENT-CONSUMER] start consumer for $matchId")
 
+        // TODO step 6
+        // use scopes map to init store and store it by match id
+        // before,cancel it already exists
 
-        val scope = CoroutineScope(Dispatchers.Default + Counters())
+        val scope =
 
         val channels = List(nbOfCollectors) { Channel<RugbyBet>() }
 
@@ -47,6 +53,7 @@ class ClosedBetConsumer(
 
             logger.info("[PAYMENT-CONSUMER] stop consumer for $matchId")
             logCounters(matchId)
+            scopes.remove(matchId)
             scope.cancel()
         }
 
@@ -115,6 +122,12 @@ class ClosedBetConsumer(
         logger.info("[MATCH] $matchId COUNTER OK ${coroutineContext[Counters]?.ok?.get()}")
         logger.info("[MATCH] $matchId COUNTER ERROR ${coroutineContext[Counters]?.error?.get()}")
         logger.info("[MATCH] $matchId COUNTER TIMEOUT ${coroutineContext[Counters]?.timeout?.get()}")
+    }
+
+    fun stopClose(matchId: String) {
+        logger.info("[MATCH] $matchId cancel scope ${scopes[matchId]}")
+        // TODO step 6
+        // cancel the scope
     }
 }
 

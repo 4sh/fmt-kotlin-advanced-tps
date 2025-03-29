@@ -1,0 +1,5 @@
+### Close match
+@id = 0f651d50-06aa-4a60-b257-6c4952fec38a
+POST http://localhost:8080/match/{{id}}/close/stop
+
+###

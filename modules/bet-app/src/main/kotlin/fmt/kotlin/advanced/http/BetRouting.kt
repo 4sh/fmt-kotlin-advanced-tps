@@ -22,6 +22,14 @@ fun Application.configureRouting(matchService: MatchService) {
             }
         }
 
+        post("/match/{id}/close/stop") {
+            val matchId = call.pathParameters["id"]
+            if (matchId != null) {
+                matchService.stopClose(matchId)
+                call.response.status(HttpStatusCode.OK)
+            }
+        }
+
         get("/match/{id}/is-fully-paid") {
             val matchId = call.pathParameters["id"]
             if (matchId != null) {
