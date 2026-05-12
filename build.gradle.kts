@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "2.0.21"
+    alias(libs.plugins.kotlin.jvm)
 }
 
 group = "fmt.kotlin.advanced"
@@ -10,14 +10,19 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
-    testImplementation("io.kotest:kotest-assertions-core-jvm:5.9.1")
+    implementation(libs.kotlinx.datetime)
+    testImplementation(libs.kotest.assertions)
     testImplementation(kotlin("test"))
 }
 
 tasks.test {
     useJUnitPlatform()
 }
+
 kotlin {
     jvmToolchain(21)
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xreturn-value-checker=full")
+    }
 }
