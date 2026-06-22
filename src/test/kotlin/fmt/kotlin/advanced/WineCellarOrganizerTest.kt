@@ -35,6 +35,7 @@ class WineCellarOrganizerTest {
     @Nested
     inner class `with racks having sufficent space` {
 
+        //tp2-step1-004
         val wineOrganizer = WineCellarOrganizer(3 to (Capacity(4, 6)))
 
         @Test
@@ -540,6 +541,7 @@ class WineCellarOrganizerTest {
     @Nested
     inner class `with racks having unique shelf` {
 
+        //tp2-step1-004
         val wineOrganizer = WineCellarOrganizer(3 to Capacity(1, 6))
 
         @Nested
@@ -867,6 +869,7 @@ class WineCellarOrganizerTest {
     @Nested
     inner class `with racks having two shelves` {
 
+        //tp2-step1-004
         val wineOrganizer = WineCellarOrganizer(3 to Capacity(2, 6))
 
         @Nested
@@ -1072,6 +1075,7 @@ class WineCellarOrganizerTest {
     @Nested
     inner class `with racks having three shelves` {
 
+        //tp2-step1-004
         val wineOrganizer = WineCellarOrganizer(3 to Capacity(3, 6))
 
         @Nested
@@ -1163,6 +1167,7 @@ class WineCellarOrganizerTest {
     @Nested
     inner class `with one rack having sufficent space` {
 
+        //tp2-step1-004
         val wineOrganizer = WineCellarOrganizer(1 to Capacity(4, 6))
 
         @Test
@@ -1235,6 +1240,7 @@ class WineCellarOrganizerTest {
     @Nested
     inner class `with two racks having sufficent space` {
 
+        //tp2-step1-004
         val wineOrganizer = WineCellarOrganizer(2 to Capacity(4, 6))
 
         @Test
@@ -1307,6 +1313,7 @@ class WineCellarOrganizerTest {
     @Nested
     inner class `with some bottles` {
 
+        //tp2-step1-004
         val wineOrganizer = WineCellarOrganizer(2 to Capacity(4, 30))
 
         @Test
@@ -1416,6 +1423,7 @@ class WineCellarOrganizerTest {
         }
     }
 
+    // tp2-step1-002
     private fun WineRack.getAt(shelfIndex: Int, slotIndex: Int) = at(shelfIndex, slotIndex)
     private fun WineRack.getAt(shelfIndex: Int) = at(shelfIndex)
 }
