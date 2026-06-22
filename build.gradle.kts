@@ -12,6 +12,7 @@ repositories {
 dependencies {
     implementation(libs.kotlinx.datetime)
     testImplementation(libs.kotest.assertions)
+    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(kotlin("test"))
 }
 
