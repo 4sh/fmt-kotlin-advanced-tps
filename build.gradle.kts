@@ -12,6 +12,7 @@ repositories {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.8.0")
     testImplementation("io.kotest:kotest-assertions-core-jvm:6.1.11")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0")
     testImplementation(kotlin("test"))
 }
 
