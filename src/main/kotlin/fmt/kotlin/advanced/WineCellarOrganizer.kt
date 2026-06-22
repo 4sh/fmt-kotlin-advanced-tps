@@ -31,6 +31,7 @@ class WineCellarOrganizer(vararg winRackAvailable: Pair<Int, Capacity>) {
     private val wineCellar = buildWineCellar(winRackAvailable)
 
     private fun buildWineCellar(winRackAvailable: Array<out Pair<Int, Capacity>>): WineCellar =
+        // tp2-step1-005
         winRackAvailable
             .flatMap { capacityByNb ->
                 generateSequence { WineRack(capacityByNb.second) }.take(capacityByNb.first).toList()
