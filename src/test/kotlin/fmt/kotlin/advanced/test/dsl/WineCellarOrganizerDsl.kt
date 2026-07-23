@@ -5,6 +5,8 @@ import fmt.kotlin.advanced.Region.*
 import kotlin.random.Random
 import kotlin.random.nextInt
 
+// TODO step3
+
 class BottleContext(
     var name: String = namesExample.random(),
     var year: Int = Random.nextInt(2000..2010),
