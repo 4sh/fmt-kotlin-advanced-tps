@@ -84,3 +84,20 @@ private class LoggingConverter(
 context(scope: TestScope)
 fun AsyncConverter.log(): AsyncConverter =
     LoggingConverter(this, scope.testScheduler)
+
+private class ExceptionConverter(
+    private val upstream: AsyncConverter,
+    private val forbidden: Set<String>,
+) : AsyncConverter by upstream {
+    override suspend fun read(): ResponsePayload {
+        val response = upstream.read()
+
+        if (response.data in forbidden)
+            throw AsyncConverter.ConversionFailed(response.id, "Forbidden value")
+
+        return response
+    }
+}
+
+fun AsyncConverter.failOn(vararg forbidden: String): AsyncConverter =
+    ExceptionConverter(this, forbidden.toHashSet())

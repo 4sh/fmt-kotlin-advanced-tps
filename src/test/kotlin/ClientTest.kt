@@ -3,6 +3,7 @@ package fmt.kotlin.advanced
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import org.junit.jupiter.api.assertThrows
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.milliseconds
@@ -65,6 +66,24 @@ class ClientTest {
 
             delay(100.milliseconds)
             job.cancel()
+        }
+    }
+
+    @Test
+    fun exception() = runTest {
+        val converter = UnorderedConverter()
+            .failOn("2.7")
+            .log()
+        val client = Client(converter)
+
+        withService({ client.run() }) {
+            launch { assertEquals("1.0", client.convert(1.0)) }
+            launch {
+                assertThrows<AsyncConverter.ConversionFailed> {
+                    val _ = client.convert(2.7)
+                }
+            }
+            launch { assertEquals("-58.578", client.convert(-58.578)) }
         }
     }
 }
