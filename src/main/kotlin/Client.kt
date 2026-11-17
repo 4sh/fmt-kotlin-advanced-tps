@@ -3,8 +3,7 @@ package fmt.kotlin.advanced
 import fmt.kotlin.advanced.AsyncConverter.RequestPayload
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.selects.select
 import kotlin.uuid.Uuid
 
 /**
@@ -30,27 +29,56 @@ class Client(
     suspend fun run(): Unit = coroutineScope {
         launch { converter.run() }
 
-        val sent = ArrayList<Pair<Uuid, CompletableDeferred<String>>>()
-        val lock = Mutex()
+        val sent = Channel<Pair<Uuid, CompletableDeferred<String>>>(Channel.BUFFERED)
+        val received = Channel<AsyncConverter.ResponsePayload>(Channel.BUFFERED)
 
         launch {
             for (request in requests) {
                 val id = Uuid.random()
-                lock.withLock {
-                    sent += id to request.response
-                }
+                sent.send(id to request.response)
                 converter.write(RequestPayload(id, request.data))
             }
         }
 
         launch {
             while (isActive) {
-                val response = converter.read()
-                lock.withLock {
-                    sent.find { it.first == response.id }
-                        .also { sent.remove(it) }
-                        ?.second
-                        ?.complete(response.data)
+                received.send(converter.read())
+            }
+        }
+
+        launch {
+            val inFlight = ArrayList<Pair<Uuid, CompletableDeferred<String>>>()
+
+            var hasInFlight = true
+            while (isActive) {
+                select {
+                    if (hasInFlight) {
+                        sent.onReceiveCatching { msg ->
+                            when {
+                                msg.isSuccess -> inFlight += msg.getOrThrow()
+                                msg.isClosed -> hasInFlight = false
+                                msg.isFailure -> msg.getOrThrow()
+                            }
+                        }
+                    }
+
+                    received.onReceiveCatching { msg ->
+                        when {
+                            msg.isSuccess -> {
+                                val response = msg.getOrThrow()
+                                val sent = inFlight.find { it.first == response.id }
+                                if (sent == null) {
+                                    System.err.println("Received response for unknown request: $response")
+                                    return@onReceiveCatching
+                                }
+
+                                inFlight.remove(sent)
+                                sent.second.complete(response.data)
+                            }
+                            msg.isClosed -> return@onReceiveCatching
+                            msg.isFailure -> msg.getOrThrow()
+                        }
+                    }
                 }
             }
         }
