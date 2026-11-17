@@ -1,11 +1,10 @@
 package fmt.kotlin.advanced
 
 import fmt.kotlin.advanced.AsyncConverter.RequestPayload
-import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.uuid.Uuid
 
 /**
@@ -31,11 +30,29 @@ class Client(
     suspend fun run(): Unit = coroutineScope {
         launch { converter.run() }
 
-        for (request in requests) {
-            val id = Uuid.random()
-            converter.write(RequestPayload(id, request.data))
+        val sent = ArrayList<Pair<Uuid, CompletableDeferred<String>>>()
+        val lock = Mutex()
 
-            request.response.complete(converter.read().data)
+        launch {
+            for (request in requests) {
+                val id = Uuid.random()
+                lock.withLock {
+                    sent += id to request.response
+                }
+                converter.write(RequestPayload(id, request.data))
+            }
+        }
+
+        launch {
+            while (isActive) {
+                val response = converter.read()
+                lock.withLock {
+                    sent.find { it.first == response.id }
+                        .also { sent.remove(it) }
+                        ?.second
+                        ?.complete(response.data)
+                }
+            }
         }
     }
 
