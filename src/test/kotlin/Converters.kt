@@ -8,6 +8,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestScope
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
@@ -31,6 +32,30 @@ class OrderedConverter : AsyncConverter {
             delay(((data.toInt() % 2) * 100).milliseconds + 50.milliseconds)
             val result = data.toString()
             responses.send(ResponsePayload(id, result))
+        }
+    }
+}
+
+class UnorderedConverter : AsyncConverter {
+    val requests = Channel<RequestPayload>(Channel.BUFFERED)
+    val responses = Channel<ResponsePayload>(Channel.BUFFERED)
+
+    override suspend fun write(request: RequestPayload) {
+        delay(50.milliseconds)
+        requests.send(request)
+    }
+
+    override suspend fun read(): ResponsePayload {
+        return responses.receive()
+    }
+
+    override suspend fun run() = coroutineScope {
+        for ((id, data) in requests) {
+            launch {
+                delay(((data.toInt() % 2) * 200).milliseconds + 100.milliseconds)
+                val result = data.toString()
+                responses.send(ResponsePayload(id, result))
+            }
         }
     }
 }
