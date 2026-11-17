@@ -21,6 +21,23 @@ class Client(
 
     private val requests = Channel<Request>()
 
+    private sealed class Response {
+        abstract val id: Uuid
+
+        data class Success(
+            override val id: Uuid,
+            val data: String,
+        ) : Response() {
+
+            constructor(data: AsyncConverter.ResponsePayload) : this(data.id, data.data)
+        }
+
+        data class Failure(
+            override val id: Uuid,
+            val exception: Exception,
+        ) : Response()
+    }
+
     /**
      * Cette méthode s'exécute pendant toute la durée de vie du client.
      *
@@ -30,7 +47,7 @@ class Client(
         launch { converter.run() }
 
         val sent = Channel<Pair<Uuid, CompletableDeferred<String>>>(Channel.BUFFERED)
-        val received = Channel<AsyncConverter.ResponsePayload>(Channel.BUFFERED)
+        val received = Channel<Response>(Channel.BUFFERED)
 
         launch {
             for (request in requests) {
@@ -42,7 +59,14 @@ class Client(
 
         launch {
             while (isActive) {
-                received.send(converter.read())
+                val response = try {
+                    Response.Success(converter.read())
+                } catch (e: AsyncConverter.ConversionFailed) {
+                    currentCoroutineContext().ensureActive()
+                    Response.Failure(e.id, e)
+                }
+
+                received.send(response)
             }
         }
 
@@ -73,7 +97,10 @@ class Client(
                                 }
 
                                 inFlight.remove(sent)
-                                sent.second.complete(response.data)
+                                when (response) {
+                                    is Response.Success -> sent.second.complete(response.data)
+                                    is Response.Failure -> sent.second.completeExceptionally(response.exception)
+                                }
                             }
                             msg.isClosed -> return@onReceiveCatching
                             msg.isFailure -> msg.getOrThrow()
